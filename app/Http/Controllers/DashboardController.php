@@ -25,7 +25,7 @@ class DashboardController extends Controller
     public function dashboard(Request $request)
     {
         // Determine which tab is selected (default: banks)
-        $tab = $request->query('tab');
+        $tab = $request->query('tab','banks');
  
         // Counts for sidebar
         $counts = [
@@ -55,6 +55,6 @@ class DashboardController extends Controller
         // }
  
         // Send data to the view
-        return view('admin.home');
+        return view('admin.home',compact('tab','counts','banks','currencies'));
     }
 }
