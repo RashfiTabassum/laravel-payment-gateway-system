@@ -25,7 +25,7 @@ class DashboardController extends Controller
     public function dashboard(Request $request)
     {
         // Determine which tab is selected (default: banks)
-        $tab = $request->query('tab');
+        $tab = $request->query('tab','banks');
  
         // Counts for sidebar
         $counts = [

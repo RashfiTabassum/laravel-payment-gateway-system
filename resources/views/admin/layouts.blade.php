@@ -1,22 +1,34 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>{{ config('app.name') }} • Admin</title>
-  <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-  @stack('styles')
 
-</head>
-<body>
+
   @include('admin.partials.header')
- 
+  <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
+      @include('admin.partials.sidebar')
 
-  <main>
-    <div class="container">
-        @yield('content')
+      <main class="app-main">
+        <div class="container-fluid">
+
+          @yield('content')
+      </div>
+      </main>
     </div>
-  </main>
+  
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+
+
+
 </body>
+
+
+
+
+
+
 </html>
  
