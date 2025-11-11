@@ -3,17 +3,11 @@
 @section('title', 'Dashboard')
 
 @section('content')
+  @php $user = auth()->user(); @endphp
 
-  @php
-    $user = auth()->user();
-  @endphp
+  <h2 class="mb-2">Admin Dashboard</h2>
+  <p class="text-muted">Welcome, <strong>{{ $user->name }}</strong>.</p>
 
-  
-<div class="card" style="margin-bottom:18px;">
-    <h2 style="margin:0 0 6px 0;">Admin Dashboard</h2>
-    <p style="color:#6b7280;margin:0;">Welcome, <strong>{{ $user->name }}</strong>.</p>
-</div>
-        
-
+  {{-- If you want to show a banks preview here, include the table PARTIAL with data you pass from controller --}}
+  {{-- @include('admin.banks._table', ['banks' => $banks]) --}}
 @endsection
-

@@ -55,6 +55,6 @@ class DashboardController extends Controller
         // }
  
         // Send data to the view
-        return view('admin.home');
+        return view('admin.home',compact('tab','counts','banks','currencies'));
     }
 }

@@ -67,6 +67,8 @@
     />
   </head>
 
+
+  
 <!-- <header>
   
   <div><strong>{{ config('app.name') }} Admin</strong></div>
