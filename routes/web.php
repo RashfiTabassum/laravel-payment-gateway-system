@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\PosController;
-use App\Http\Controllers\BankController;
+
 
 
 /*
