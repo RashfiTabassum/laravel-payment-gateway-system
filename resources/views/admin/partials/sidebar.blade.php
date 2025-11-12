@@ -23,6 +23,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('merchants.index') }}"
+                       class="nav-link {{ request()->routeIs('merchants.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-people"></i>
+                        <p>Merchants</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('banks.index') }}"
                        class="nav-link {{ request()->routeIs('banks.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-bank"></i>

@@ -1,9 +1,10 @@
 @extends('admin.layouts')
 
-@section('title', 'Banks')
+@section('title', 'Merchants')
 
 @section('content')
     @include('admin.partials.alerts')
+
     <div class="app-content">
         <div class="container">
             <div class="row">
@@ -12,8 +13,8 @@
                         <div class="card-header">
                             <div class="row mb-3">
                                 <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                    <h3>Banks</h3>
-                                    <a href="{{ route('admin.banks.create') }}" class="btn btn-primary">Add Bank</a>
+                                    <h3>Merchants</h3>
+                                    <a href="{{ route('merchants.create') }}" class="btn btn-primary">Add Merchant</a>
                                 </div>
                             </div>
                         </div>
@@ -22,42 +23,33 @@
                             <table class="table table-hover table-bordered .table-striped">
                                 <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th style="width:70px">#</th>
                                     <th>Name</th>
-                                    <th>Issuer</th>
-                                    <th>Username</th>
-                                    <th>Branch</th>
-                                    <th>Code</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
+                                    <th>Email</th>
+                                    <th style="width:110px">Status</th>
+                                    <th style="width:180px">Created</th>
+                                    <th style="width:180px">Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($banks as $bank)
+                                @forelse ($merchants as $a)
                                     <tr>
-                                        <td>{{ $bank->id }}</td>
-                                        <td>{{ $bank->name }}</td>
-                                        <td>{{ $bank->issuer_name }}</td>
-                                        <td>{{ $bank->user_name }}</td>
-                                        <td>{{ $bank->branch }}</td>
-                                        <td>{{ $bank->code }}</td>
+                                        <td>{{ $a->id }}</td>
+                                        <td>{{ $a->name }}</td>
+                                        <td>{{ $a->email }}</td>
                                         <td>
-                                            @if($bank->status == 'Active')
+                                            @if((int)($a->status ?? 1) === 1)
                                                 <span class="badge bg-success">Active</span>
                                             @else
                                                 <span class="badge bg-danger">Inactive</span>
                                             @endif
                                         </td>
-                                        <td>{{ $bank->created_at->format('Y-m-d') }}</td>
-
+                                        <td>{{ $a->created_at?->format('Y-m-d') ?? '—' }}</td>
                                         <td>
-                                            <a href="{{ route('admin.banks.show', $bank->id) }}"
-                                               class="btn btn-primary btn-sm">View</a>
-                                            <a href="{{ route('admin.banks.edit', $bank->id) }}"
-                                               class="btn btn-secondary btn-sm">Edit</a>
-
-                                            <form action="{{ route('admin.banks.destroy', $bank->id) }}" method="POST"
+                                            <a href="{{ route('merchants.show', $a) }}" class="btn btn-sm btn-primary">View</a>
+                                            <a href="{{ route('merchants.edit', $a) }}"
+                                               class="btn btn-sm btn-secondary">Edit</a>
+                                            <form action="{{ route('merchants.destroy', $a->id) }}" method="POST"
                                                   style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
@@ -67,11 +59,18 @@
                                                 </button>
                                             </form>
                                         </td>
-
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">No merchants found.</td>
+                                    </tr>
+                                @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div class="card-footer">
+                            {{ $merchants->withQueryString()->links() }}
                         </div>
                     </div>
                 </div>
