@@ -68,7 +68,8 @@
     </div>
 
     <div class="card-footer">
-        {{ $banks->links() }}
-    </div>
+    {{ $banks->links('pagination::bootstrap-5') }}
+</div>
+
 </div>
 @endsection

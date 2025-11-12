@@ -18,13 +18,15 @@ Route::middleware('guest')->group(function () {
     Route::post('register',[AuthController::class, 'register'])->name('register.post');
 });
 
-
-
 Route::middleware('auth')->group(function () {
     // Banks
     Route::get('banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+   
+    Route::resource('admins', AdminController::class)
+        ->names('admins')
+        ->except(['show']);
 
 
 
