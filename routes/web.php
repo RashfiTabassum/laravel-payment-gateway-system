@@ -57,6 +57,8 @@ Route::middleware('auth')->group(function () {
         ->names('merchants');
 
 
+    //create a post route named: make-payment
+    //eg. Route::post('/make-payment', [PaymentController::class, 'payment'])->name('make.payment');
 });
 
 
