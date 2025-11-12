@@ -11,3 +11,7 @@
 4. from currency section:
 - while deleting a section flash message background color is green, it should be red.
 - while adding duplicate currency it shows double error message.
+
+5. todo:
+- make a transaction page
+- complete payment process
