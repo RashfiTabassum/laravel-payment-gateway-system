@@ -3,14 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model; //Eloquent model base class. Provides ORM functionalities. orm is Object Relational Mapping
-
+use Illuminate\Database\Eloquent\Model;
 
 class Currency extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'symbol', 'code']; // <-- important to allow mass assignment
-    //Mass assignment means assigning multiple attributes to a model in one go — usually from an array (like form input).
-    // The $fillable property is an array that specifies which attributes should be mass-assignable. This is a security feature to prevent mass assignment vulnerabilities.
+    protected $fillable = ['name', 'symbol', 'code'];
+
+    // CREATE
+    public static function insertCurrency(array $data)
+    {
+        // Mass assignment to create a new currency
+        return self::create($data);
+    }
+
+    // READ - all currencies with pagination
+    public static function fetchCurrencies(int $perPage = 10)
+    {
+        return self::latest()->paginate($perPage);
+    }
+
+    // READ - single currency by id
+    public static function fetchCurrencyById(int $id)
+    {
+        return self::findOrFail($id);
+    }
+
+    // UPDATE
+    public function updateCurrency(array $data)
+    {
+        return $this->update($data);
+    }
+    // DELETE
+    public function deleteCurrency()
+    {
+        return $this->delete();
+    }
 }

@@ -2,68 +2,91 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Currency; //Currency model (interacts with the currencies database table)
+use App\Models\Currency;
 use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
-    // Show all currencies
-    public function index()   
+    public function index()
     {
-        $currencies = Currency::latest()->paginate(10); //Fetch latest currencies with pagination. page size 10
-        return view('admin.currencies.index', compact('currencies')); //Sends them to the admin/currencies/index.blade.php view.
+        $currencies = Currency::orderBy('created_at', 'desc')->paginate(10);
+        return view('admin.currencies.index', compact('currencies'));
     }
 
-    // Show create form
     public function create()
     {
-        return view('admin.currencies.create'); //Returns the view for creating a new currency.
+        return view('admin.currencies.create');
     }
 
-    // Store new currency
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name'   => 'required|string|max:100',
+        $request->validate([
+            'name' => 'required|string|max:255',
             'symbol' => 'required|string|max:10',
-            'code'   => 'required|string|max:10',
+            'code' => 'required|string|max:10',
         ]);
 
-        Currency::create($data);
+        // Currency::create($request->all());
 
-        return redirect()->route('currencies.index')->with('success', 'Currency added successfully.');//Redirects to the currencies index with a success message.
+        // return redirect()->route('currencies.index')->with('success', 'Currency added successfully!');
+         try {
+        Currency::create($request->all());
+        return redirect()->route('currencies.index')
+                         ->with('message', 'Currency added successfully!')
+                         ->with('alert-type', 'success');
+    } catch (\Exception $e) {
+        return redirect()->back()
+                         ->with('message', 'Failed to add currency.')
+                         ->with('alert-type', 'danger');
+    }
     }
 
-    // Show single currency
     public function show(Currency $currency)
     {
-        return view('admin.currencies.show', compact('currency')); //Returns the view for showing a single currency. compact passes the currency to the view. compact('currency') is equivalent to ['currency' => $currency].
+        return view('admin.currencies.show', compact('currency'));
     }
 
-    // Show edit form
     public function edit(Currency $currency)
     {
         return view('admin.currencies.edit', compact('currency'));
     }
 
-    // Update currency
     public function update(Request $request, Currency $currency)
     {
-        $data = $request->validate([
-            'name'   => 'required|string|max:100',
+        $request->validate([
+            'name' => 'required|string|max:255',
             'symbol' => 'required|string|max:10',
-            'code'   => 'required|string|max:10',
+            'code' => 'required|string|max:10',
         ]);
 
-        $currency->update($data);
+        // $currency->update($request->all());
 
-        return redirect()->route('currencies.index')->with('success', 'Currency updated successfully.');
+        // return redirect()->route('currencies.index')->with('success', 'Currency updated successfully!');
+        try {
+        $currency->update($request->all());
+        return redirect()->route('currencies.index')
+                         ->with('message', 'Currency updated successfully!')
+                         ->with('alert-type', 'success');
+    } catch (\Exception $e) {
+        return redirect()->back()
+                         ->with('message', 'Failed to update currency.')
+                         ->with('alert-type', 'danger');
+    }
     }
 
-    // Delete currency
     public function destroy(Currency $currency)
     {
+        // $currency->delete();
+        // return redirect()->route('currencies.index')->with('success', 'Currency deleted successfully!');
+        try {
         $currency->delete();
-        return redirect()->route('currencies.index')->with('success', 'Currency deleted successfully.');
+        return redirect()->route('currencies.index')
+                         ->with('message', 'Currency deleted successfully!')
+                         ->with('alert-type', 'success');
+            } catch (\Exception $e) {
+                return redirect()->back()
+                                ->with('message', 'Failed to delete currency.')
+                                ->with('alert-type', 'danger');
+            }
     }
 }

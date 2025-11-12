@@ -8,40 +8,24 @@
     <div class="sidebar-wrapper">
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" id="navigation">
-
-                {{-- Dashboard --}}
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-speedometer2"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
-
-                {{-- Banks --}}
                 <li class="nav-item">
                     <a href="{{ route('banks.index') }}" class="nav-link {{ request()->routeIs('banks.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-bank"></i>
                         <p>Banks</p>
                     </a>
                 </li>
-
-                {{-- Currencies --}}
                 <li class="nav-item">
                     <a href="{{ route('currencies.index') }}" class="nav-link {{ request()->routeIs('currencies.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-cash-coin"></i>
                         <p>Currencies</p>
                     </a>
                 </li>
-
-                {{-- Admins --}}
-
-                <li class="nav-item">
-                    <a href="{{ route('admins.index') }}" class="nav-link {{ request()->routeIs('admins.*') ? 'active' : '' }}">
-                        <i class="nav-icon bi bi-shield-lock"></i>
-                        <p>Admins</p>
-                    </a>
-                </li>
-
             </ul>
         </nav>
     </div>
