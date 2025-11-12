@@ -6,11 +6,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class Admin extends Authenticatable
 {
     use Notifiable;
 
+    public const USER_TYPE_ADMIN = 1;
+    public const USER_TYPE_MERCHANT = 2;
+
+    /** 
+     * Status constants 
+     */
+    public const STATUS_ACTIVE = 1;
+    public const STATUS_PASSIVE = 0;
     // Use the existing users table
     protected $table = 'users';
 
@@ -32,14 +41,13 @@ class Admin extends Authenticatable
     protected static function booted(): void
     {
         static::addGlobalScope('adminsOnly', function (Builder $q) {
-            $q->where('user_type', 1);
+            $q->where('user_type', self::USER_TYPE_ADMIN);
         });
 
         static::creating(function (self $admin) {
-            $admin->user_type = 1;
-            // Set a default status if your column exists and isn’t set
+            $admin->user_type = self::USER_TYPE_ADMIN;
             if (is_null($admin->status)) {
-                $admin->status = 1;
+                $admin->status = self::STATUS_ACTIVE;
             }
         });
     }
@@ -47,7 +55,11 @@ class Admin extends Authenticatable
     /**
      * Auto-hash password when set (skips if already hashed).
      */
-    public function setPasswordAttribute($value): void
+    
+    /**
+     * @param string $value
+     */
+public function setPasswordAttribute($value): void
     {
         if (!$value) return;
         $this->attributes['password'] = str_starts_with($value, '$2y$')
