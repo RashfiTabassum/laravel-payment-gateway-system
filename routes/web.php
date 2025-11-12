@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BankController;
-use App\Http\Controllers\CurrenciesController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\AdminController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,11 +38,17 @@ Route::middleware('auth')->group(function () {
 
 // Currencies CRUD (all routes protected by auth)
 Route::middleware('auth')->group(function () {
-    Route::get('currencies', [CurrenciesController::class, 'index'])->name('currencies.index');
-    Route::get('currencies/create', [CurrenciesController::class, 'create'])->name('currencies.create');
-    Route::post('currencies', [CurrenciesController::class, 'store'])->name('currencies.store');
-    Route::get('currencies/{currency}', [CurrenciesController::class, 'show'])->name('currencies.show');
-    Route::get('currencies/{currency}/edit', [CurrenciesController::class, 'edit'])->name('currencies.edit');
-    Route::put('currencies/{currency}', [CurrenciesController::class, 'update'])->name('currencies.update');
-    Route::delete('currencies/{currency}', [CurrenciesController::class, 'destroy'])->name('currencies.destroy');
+    Route::get('currencies', [CurrencyController::class, 'index'])->name('currencies.index');
+    Route::get('currencies/create', [CurrencyController::class, 'create'])->name('currencies.create');
+    Route::post('currencies', [CurrencyController::class, 'store'])->name('currencies.store');
+    Route::get('currencies/{currency}', [CurrencyController::class, 'show'])->name('currencies.show');
+    Route::get('currencies/{currency}/edit', [CurrencyController::class, 'edit'])->name('currencies.edit');
+    Route::put('currencies/{currency}', [CurrencyController::class, 'update'])->name('currencies.update');
+    Route::delete('currencies/{currency}', [CurrencyController::class, 'destroy'])->name('currencies.destroy');
 });
+
+Route::resource('admins', AdminController::class)
+        ->names('admins')
+        ->except(['show']);
+Route::get('admins/{admin}', [AdminController::class, 'show'])->name('admins.show')->middleware('auth');
+

@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Currency;
+use App\Models\Currency; //Currency model (interacts with the currencies database table)
 use Illuminate\Http\Request;
 
-class CurrenciesController extends Controller
+class CurrencyController extends Controller
 {
     // Show all currencies
-    public function index()
+    public function index()   
     {
-        $currencies = Currency::latest()->paginate(10);
-        return view('admin.currencies.index', compact('currencies'));
+        $currencies = Currency::latest()->paginate(10); //Fetch latest currencies with pagination. page size 10
+        return view('admin.currencies.index', compact('currencies')); //Sends them to the admin/currencies/index.blade.php view.
     }
 
     // Show create form
     public function create()
     {
-        return view('admin.currencies.create');
+        return view('admin.currencies.create'); //Returns the view for creating a new currency.
     }
 
     // Store new currency
@@ -31,13 +31,13 @@ class CurrenciesController extends Controller
 
         Currency::create($data);
 
-        return redirect()->route('currencies.index')->with('success', 'Currency added successfully.');
+        return redirect()->route('currencies.index')->with('success', 'Currency added successfully.');//Redirects to the currencies index with a success message.
     }
 
     // Show single currency
     public function show(Currency $currency)
     {
-        return view('admin.currencies.show', compact('currency'));
+        return view('admin.currencies.show', compact('currency')); //Returns the view for showing a single currency. compact passes the currency to the view. compact('currency') is equivalent to ['currency' => $currency].
     }
 
     // Show edit form

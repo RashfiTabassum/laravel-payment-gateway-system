@@ -11,5 +11,6 @@ class BankController extends Controller
     {
         $banks = Bank::latest('id')->paginate(10, ['*'], 'banks');
         return view('admin.banks.index', compact('banks'));
+        
     }
 }

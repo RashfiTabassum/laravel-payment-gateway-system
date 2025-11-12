@@ -33,6 +33,15 @@
                     </a>
                 </li>
 
+                {{-- Admins --}}
+
+                <li class="nav-item">
+                    <a href="{{ route('admins.index') }}" class="nav-link {{ request()->routeIs('admins.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-shield-lock"></i>
+                        <p>Admins</p>
+                    </a>
+                </li>
+
             </ul>
         </nav>
     </div>

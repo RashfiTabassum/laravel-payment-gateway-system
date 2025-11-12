@@ -1,40 +1,27 @@
 <!doctype html>
 <html lang="en">
-<head>
-    @include('admin.partials.header')
-</head>
+@include('admin.partials.header')
+
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+<div class="app-wrapper">
+    @include('admin.partials.topbar')
+    @include('admin.partials.sidebar')
 
-    <div class="app-wrapper">
-
-        {{-- Navbar --}}
-        <nav class="app-header navbar navbar-expand bg-body">
-            <div class="container-fluid">
-                <ul class="navbar-nav ms-auto">
-                    <li class="user-footer">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button class="btn btn-default btn-flat float-end" type="submit">Sign out</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
-        {{-- Sidebar --}}
-        @include('admin.partials.sidebar')
-
-        {{-- Main content --}}
-        <main class="app-main">
+    <main class="app-main">
+        <div class="app-content">
             <div class="container-fluid">
                 @yield('content')
             </div>
-        </main>
+        </div>
+    </main>
+    @include('admin.partials.footer')
+</div>
 
-    </div>
-
-    {{-- JS Scripts --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="{{ asset('js/adminlte.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/fontawesome.min.js"
+        integrity="sha512-obFNtQ1JKCrxPBPLmYDUevlriATl5EhvwU3CFtdW/HKOkeAe0bbsyZfHO44/f1QyndrZJ464TQvrRP9ZjyXSSA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 </html>
