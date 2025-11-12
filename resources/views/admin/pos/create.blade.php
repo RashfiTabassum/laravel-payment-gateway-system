@@ -9,7 +9,7 @@
       <div class="col-md-12">
         <div class="card mb-12">
           <div class="card-header">
-            <h3 class="card-title">Add POS</h3>
+            <h3 class="card-title" style="font-size: 1.75rem;">Add POS</h3>
           </div>
           <div class="card-body">
             <form method="POST" action="{{ route('pos.store') }}">

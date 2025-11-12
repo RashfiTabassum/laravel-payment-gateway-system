@@ -1,13 +1,13 @@
-<!-- @extends('admin.layouts')
-
+@extends('admin.layouts')
+ 
 @section('title', 'Add Currency')
-
-
+ 
+ 
 @section('content')
-
+ 
 {{-- Global alert messages --}}
 @include('admin.partials.alerts')
-
+ 
 <div class="row">
     <div class="col-md-6">
         <h3>Add Currency</h3>
@@ -32,45 +32,5 @@
             <a href="{{ route('currencies.index') }}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
-</div>
-@endsection -->
-
-
-@extends('admin.layouts')
-
-@section('title', 'Add Currency')
-
-@section('content')
-<div class="container mt-3">
-    <h3>Add Currency</h3>
-
-    {{-- Alert Messages --}}
-    @if(session('message'))
-        <div class="alert alert-{{ session('alert-type', 'info') }} alert-dismissible fade show" role="alert">
-            {{ session('message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <form action="{{ route('currencies.store') }}" method="POST">
-        @csrf
-        <div class="mb-3">
-            <label>Name</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name') }}">
-            @error('name')<small class="text-danger">{{ $message }}</small>@enderror
-        </div>
-        <div class="mb-3">
-            <label>Symbol</label>
-            <input type="text" name="symbol" class="form-control" value="{{ old('symbol') }}">
-            @error('symbol')<small class="text-danger">{{ $message }}</small>@enderror
-        </div>
-        <div class="mb-3">
-            <label>Code</label>
-            <input type="text" name="code" class="form-control" value="{{ old('code') }}">
-            @error('code')<small class="text-danger">{{ $message }}</small>@enderror
-        </div>
-        <button class="btn btn-primary">Save</button>
-        <a href="{{ route('currencies.index') }}" class="btn btn-secondary">Cancel</a>
-    </form>
 </div>
 @endsection
