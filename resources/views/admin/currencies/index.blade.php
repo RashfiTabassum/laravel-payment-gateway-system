@@ -9,7 +9,8 @@
         <a href="{{ route('currencies.create') }}" class="btn btn-primary">Add Currency</a>
     </div>
 </div>
-@if(session('message'))
+
+<!-- @if(session('message'))
     <div class="container mt-3">
         <div class="alert alert-{{ session('alert-type', 'info') }} alert-dismissible fade show" role="alert">
             {{ session('message') }}
@@ -20,7 +21,11 @@
 
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
-@endif
+@endif -->
+
+{{-- Global alert messages --}}
+
+@include('admin.partials.alerts')
 
 <div class="card">
     <div class="card-body">
