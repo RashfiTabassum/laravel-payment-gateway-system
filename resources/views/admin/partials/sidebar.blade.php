@@ -1,22 +1,32 @@
-<aside class="sidebar">
-  <div class="brand">{{ config('app.name') }}</div>
-  <nav class="nav">
-  <a href="{{ route('dashboard', ['tab' => 'banks']) }}" class="{{ ($tab ?? '') === 'banks' ? 'active' : '' }}">
-    Banks <span class="count">{{ $counts['banks'] ?? '' }}</span>
-  </a>
-  <a href="{{ route('dashboard', ['tab' => 'currencies']) }}" class="{{ ($tab ?? '') === 'currencies' ? 'active' : '' }}">
-    Currencies <span class="count">{{ $counts['currencies'] ?? '' }}</span>
-  </a>
-  <!-- <a href="{{ route('dashboard', ['tab' => 'merchants']) }}" class="{{ ($tab ?? '') === 'merchants' ? 'active' : '' }}">
-      Merchants <span class="count">{{ $counts['merchants'] ?? '' }}</span>
-  </a>
-  <a href="{{ route('dashboard', ['tab' => 'transactions']) }}" class="{{ ($tab ?? '') === 'transactions' ? 'active' : '' }}">
-      Transactions <span class="count">{{ $counts['transactions'] ?? '' }}</span>
-  </a>
-  <a href="{{ route('dashboard', ['tab' => 'pos']) }}" class="{{ ($tab ?? '') === 'pos' ? 'active' : '' }}">
-      POS <span class="count">{{ $counts['pos'] ?? '' }}</span>
-  </a> -->
- 
-  </nav>
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+        <a href="{{ route('dashboard') }}" class="brand-link">
+            <span class="brand-text fw-light">PayGate</span>
+        </a>
+    </div>
+
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <ul class="nav sidebar-menu flex-column" id="navigation">
+                <li class="nav-item">
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-speedometer2"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('banks.index') }}" class="nav-link {{ request()->routeIs('banks.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-bank"></i>
+                        <p>Banks</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('currencies.index') }}" class="nav-link {{ request()->routeIs('currencies.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-cash-coin"></i>
+                        <p>Currencies</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </aside>
- 

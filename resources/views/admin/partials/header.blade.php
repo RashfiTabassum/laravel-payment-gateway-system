@@ -1,7 +1,7 @@
-<header>
-  <div><strong>{{ config('app.name') }} Admin</strong></div>
-  <form method="POST" action="{{ route('logout') }}">
-    @csrf
-    <button class="btn" type="submit">Logout</button>
-  </form>
-</header>
+<!-- admin/partials/header.blade.php -->
+
+<!-- Only include things not already in layout.blade.php -->
+
+<!-- Example: custom styles -->
+<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+@stack('styles')

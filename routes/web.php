@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\AdminController;
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    // Banks
+    Route::get('banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
    
@@ -35,3 +38,32 @@ Route::middleware('auth')->group(function () {
 
 
 });
+
+
+
+// Currencies CRUD (all routes protected by auth)
+// Route::middleware('auth')->group(function () {
+//     Route::get('currencies', [CurrencyController::class, 'index'])->name('currencies.index');
+//     Route::get('currencies/create', [CurrencyController::class, 'create'])->name('currencies.create');
+//     Route::post('currencies', [CurrencyController::class, 'store'])->name('currencies.store');
+//     //Route::get('currencies/{currency}', [CurrencyController::class, 'show'])->name('currencies.show');
+//     Route::get('currencies/{currency}/edit', [CurrencyController::class, 'edit'])->name('currencies.edit');
+//     Route::put('currencies/{currency}', [CurrencyController::class, 'update'])->name('currencies.update');
+//     Route::delete('currencies/{currency}', [CurrencyController::class, 'destroy'])->name('currencies.destroy');
+// });
+Route::prefix('currencies')->name('currencies.')->group(function () {
+    Route::get('/', [CurrencyController::class, 'index'])->name('index');
+    Route::get('/create', [CurrencyController::class, 'create'])->name('create');
+    Route::post('/', [CurrencyController::class, 'store'])->name('store');
+    Route::get('/{currency}', [CurrencyController::class, 'show'])->name('show');
+    Route::get('/{currency}/edit', [CurrencyController::class, 'edit'])->name('edit');
+    Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
+    Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
+});
+
+
+// Route::resource('admins', AdminController::class)
+//         ->names('admins')
+//         ->except(['show']);
+// Route::get('admins/{admin}', [AdminController::class, 'show'])->name('admins.show')->middleware('auth');
+
