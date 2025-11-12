@@ -4,17 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\AdminController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 Route::get('/', fn() => redirect()->route('login'));
 
 Route::middleware('guest')->group(function () {
@@ -34,7 +26,17 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('banks', BankController::class);
+
+
+Route::prefix('currencies')->name('currencies.')->group(function () {
+    Route::get('/', [CurrencyController::class, 'index'])->name('index');
+    Route::get('/create', [CurrencyController::class, 'create'])->name('create');
+    Route::post('/', [CurrencyController::class, 'store'])->name('store');
+    Route::get('/{currency}', [CurrencyController::class, 'show'])->name('show');
+    Route::get('/{currency}/edit', [CurrencyController::class, 'edit'])->name('edit');
+    Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
+    Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
 });
-});
+
+
+
