@@ -1,0 +1,13 @@
+1. from user section:
+- while creating or updating an admin user status is not working
+
+2. from merchant section:
+- while creating or updating a merchant user status is not working
+- while deleting a merchant it shows  wrong message, also message should be appropriate before deleting.
+
+3. from bank section:
+- while creating or updating a bank status is not working
+
+4. from currency section:
+- while deleting a section flash message background color is green, it should be red.
+- while adding duplicate currency it shows double error message.
