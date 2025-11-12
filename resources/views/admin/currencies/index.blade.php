@@ -10,18 +10,7 @@
     </div>
 </div>
 
-<!-- @if(session('message'))
-    <div class="container mt-3">
-        <div class="alert alert-{{ session('alert-type', 'info') }} alert-dismissible fade show" role="alert">
-            {{ session('message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    </div>
-@endif
 
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif -->
 
 {{-- Global alert messages --}}
 
