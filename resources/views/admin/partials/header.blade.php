@@ -1,3 +1,4 @@
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Paygate</title>
@@ -43,3 +44,5 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
 </head>
 
+<link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+@stack('styles')

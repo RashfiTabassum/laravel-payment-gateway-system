@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\AdminController;
 
@@ -28,6 +29,22 @@ Route::middleware('auth')->group(function () {
 
 
 
+
+});
+
+Route::middleware('auth')->group(function () {
+    // POS
+    Route::get('pos', [PosController::class, 'index'])->name('pos.index');
+    Route::get('pos/create', [PosController::class, 'create'])->name('pos.create');
+    Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+    Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
+    Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
+    Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
+
+
+});
+
+
 Route::prefix('currencies')->name('currencies.')->group(function () {
     Route::get('/', [CurrencyController::class, 'index'])->name('index');
     Route::get('/create', [CurrencyController::class, 'create'])->name('create');
@@ -36,6 +53,10 @@ Route::prefix('currencies')->name('currencies.')->group(function () {
     Route::get('/{currency}/edit', [CurrencyController::class, 'edit'])->name('edit');
     Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
     Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('banks', BankController::class);
 });
 
 
