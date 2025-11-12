@@ -26,7 +26,13 @@
                         <p>Currencies</p>
                     </a>
                 </li>
-                 <li class="nav-item">
+                <li class="nav-item">
+                    <a href="{{ route('admins.index') }}" class="nav-link {{ request()->routeIs('admins.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-cash-coin"></i>
+                        <p>Admins</p>
+                    </a>
+                </li>
+                  <li class="nav-item">
                     <a href="{{ route('pos.index') }}" class="nav-link {{ request()->routeIs('pos.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-cash-coin"></i>
                         <p>Pos</p>

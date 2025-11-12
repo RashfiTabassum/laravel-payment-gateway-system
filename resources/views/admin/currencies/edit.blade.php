@@ -1,9 +1,9 @@
 @extends('admin.layouts')
- 
+
 @section('title', 'Edit Currency')
- 
+
 @section('content')
- 
+
 {{-- Global alert messages --}}
 @include('admin.partials.alerts')
 <div class="row">

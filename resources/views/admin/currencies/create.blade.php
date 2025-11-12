@@ -1,13 +1,13 @@
 @extends('admin.layouts')
- 
+
 @section('title', 'Add Currency')
- 
- 
+
+
 @section('content')
- 
+
 {{-- Global alert messages --}}
 @include('admin.partials.alerts')
- 
+
 <div class="row">
     <div class="col-md-6">
         <h3>Add Currency</h3>
