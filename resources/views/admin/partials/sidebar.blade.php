@@ -29,7 +29,7 @@
                 <li class="nav-item">
                     <a href="{{ route('admins.index') }}" class="nav-link {{ request()->routeIs('admins.*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-cash-coin"></i>
-                        <p>Admins</p>
+                        <p>Users</p>
                     </a>
                 </li>
                   <li class="nav-item">
