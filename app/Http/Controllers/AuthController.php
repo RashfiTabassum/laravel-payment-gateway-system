@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    private function redirectToDashboard($user)
+    {
+        return $user->user_type == 1
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('merchant.dashboard');
+    }
+
     public function showLogin() {
         return view('admin.auth.login');
     }
@@ -27,7 +34,8 @@ class AuthController extends Controller
                 Auth::logout();
                 return back()->withErrors(['email'=>'Your account is not active.'])->onlyInput('email');
             }
-            return redirect()->route('dashboard');
+            $user = Auth::user();
+            return $this->redirectToDashboard($user);
         }
 
         return back()->withErrors(['email'=>'Invalid credentials'])->onlyInput('email');
@@ -55,7 +63,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('dashboard');
+        return $this->redirectToDashboard($user);
     }
 
     public function logout(Request $request) {

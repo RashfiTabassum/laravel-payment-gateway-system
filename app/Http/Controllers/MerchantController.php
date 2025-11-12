@@ -96,4 +96,11 @@ class MerchantController extends Controller
     {
         return view('admin.merchants.show', compact('merchant')); //
     }
+    
+    public function profile()
+    {
+        $user = auth()->user();
+        return view('merchant.profile', compact('user'));
+    }
+
 }
