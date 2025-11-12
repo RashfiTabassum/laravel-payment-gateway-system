@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'merchant' => [
+        'driver' => 'session',
+        'provider' => 'merchants',
+    ],
     ],
 
     /*
@@ -69,6 +73,10 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+        'merchants' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Merchant::class,
+        ],
     ],
 
     /*
