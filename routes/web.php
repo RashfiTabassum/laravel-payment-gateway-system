@@ -32,4 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::get('banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('banks', BankController::class);
+});
 });
