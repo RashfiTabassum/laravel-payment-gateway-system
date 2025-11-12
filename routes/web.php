@@ -28,6 +28,10 @@ Route::middleware('auth')->group(function () {
         ->names('admins')
         ->except(['show']);
 
+
+
+
+
 });
 
 Route::middleware('auth')->group(function () {
@@ -52,3 +56,10 @@ Route::prefix('currencies')->name('currencies.')->group(function () {
     Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
     Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('banks', BankController::class);
+});
+
+
+
