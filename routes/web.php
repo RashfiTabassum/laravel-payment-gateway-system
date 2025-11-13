@@ -23,8 +23,8 @@ Route::middleware('auth')->group(function () {
     // Banks
     Route::get('banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');});
-
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+});
     Route::resource('admins', AdminController::class)
         ->names('admins')
         ->except(['show']);
