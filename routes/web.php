@@ -24,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
  
  
+
+
     Route::middleware('userType:1')->group(function () {
  
         // Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -46,6 +48,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{bank}', [BankController::class, 'destroy'])->name('destroy');
         });
  
+
         Route::prefix('currencies')->name('currencies.')->group(function () {
             Route::get('/', [CurrencyController::class, 'index'])->name('index');
             Route::get('/create', [CurrencyController::class, 'create'])->name('create');
@@ -60,6 +63,7 @@ Route::middleware('auth')->group(function () {
         Route::get('pos', [PosController::class, 'index'])->name('pos.index');
         Route::get('pos/create', [PosController::class, 'create'])->name('pos.create');
         Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+        Route::get('pos/{pos}', [PosController::class, 'show'])->name('pos.show');
         Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
         Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
         Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
@@ -86,6 +90,9 @@ Route::middleware('auth')->group(function () {
  
  
  
+    
+
+
 });
  
  

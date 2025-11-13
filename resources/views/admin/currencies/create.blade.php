@@ -1,12 +1,11 @@
 @extends('admin.layouts')
-
 @section('title', 'Add Currency')
 
 
 @section('content')
 
-    {{-- Global alert messages --}}
-    @include('admin.partials.alerts')
+{{-- Global alert messages --}}
+@include('admin.partials.alerts')
 
     <div class="app-content">
         <div class="container">
@@ -47,4 +46,5 @@
             </div>
         </div>
     </div>
+</div>
 @endsection
