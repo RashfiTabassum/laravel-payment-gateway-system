@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
         ->names('admins')
         ->except(['show']);
 
+});
 
     // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
@@ -37,7 +38,6 @@ Route::middleware('auth')->group(function () {
     Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
     Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
     Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
-
 
     Route::prefix('currencies')->name('currencies.')->group(function () {
         Route::get('/', [CurrencyController::class, 'index'])->name('index');
@@ -48,8 +48,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
         Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
     });
-
-
 
     Route::resource('merchants', MerchantController::class)
         ->names('merchants');
