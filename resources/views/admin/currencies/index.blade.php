@@ -1,11 +1,11 @@
 @extends('admin.layouts')
-
+ 
 @section('title', 'Currencies')
-
+ 
 @section('content')
-
+ 
     @include('admin.partials.alerts')
-
+ 
     <div class="app-content">
         <div class="container">
             <div class="row">
@@ -19,7 +19,7 @@
                                 </div>
                             </div>
                         </div>
-
+ 
                         <div class="card-body">
                             <table class="table table-hover table-bordered .table-striped">
                                 <thead>

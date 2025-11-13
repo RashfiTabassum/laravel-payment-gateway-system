@@ -1,7 +1,5 @@
 @extends('admin.layouts')
- 
-@section('title', 'View Currency')
- 
+@section('title', 'View Merchant')
 @section('content')
     <div class="app-content">
         <div class="container">
@@ -11,7 +9,7 @@
                         <div class="card-header">
                             <div class="row mb-3">
                                 <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                    <h3>View Currency</h3>
+                                    <h3>View Users</h3>
                                 </div>
                             </div>
                         </div>
@@ -19,26 +17,35 @@
                             <table class="table table-hover table-bordered .table-striped">
                                 <tr>
                                     <th>ID</th>
-                                    <td>{{ $currency->id }}</td>
+                                    <td>{{ $admin->id }}</td>
                                 </tr>
                                 <tr>
                                     <th>Name</th>
-                                    <td>{{ $currency->name }}</td>
+                                    <td>{{ $admin->name }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Symbol</th>
-                                    <td>{{ $currency->symbol }}</td>
+                                    <th>Email</th>
+                                    <td>{{ $admin->email }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Code</th>
-                                    <td>{{ $currency->code }}</td>
+                                    <th>Status</th>
+                                    <td>
+                                        @if((int)($admin->status ?? 1) === 1)
+                                            <span class="badge bg-success">Active</span>
+                                        @else
+                                            <span class="badge bg-danger">Inactive</span>
+                                        @endif
+                                    </td>
                                 </tr>
                                 <tr>
                                     <th>Created At</th>
-                                    <td>{{ $currency->created_at?->format('Y-m-d') ?? '—' }}</td>
+                                    <td>{{ $admin->created_at?->format('Y-m-d H:i:s') ?? '—' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Updated At</th>
+                                    <td>{{ $admin->updated_at?->format('Y-m-d H:i:s') ?? '—' }}</td>
                                 </tr>
                             </table>
-                            <a href="{{ route('currencies.index') }}" class="btn btn-secondary">Back</a>
                         </div>
                     </div>
                 </div>
