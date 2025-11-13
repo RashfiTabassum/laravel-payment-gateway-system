@@ -34,4 +34,4 @@
   {{-- Page-specific styles --}}
   @stack('styles')
 </head>
->>>>>>> 00f5bdf (merchant crud)
+
