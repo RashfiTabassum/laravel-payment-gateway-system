@@ -1,5 +1,4 @@
 @extends('admin.layouts')
-
 @section('title', 'Edit Currency')
 
 @section('content')

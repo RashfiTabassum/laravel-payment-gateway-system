@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
         Route::get('pos', [PosController::class, 'index'])->name('pos.index');
         Route::get('pos/create', [PosController::class, 'create'])->name('pos.create');
         Route::post('pos', [PosController::class, 'store'])->name('pos.store');
+        Route::get('pos/{pos}', [PosController::class, 'show'])->name('pos.show');
         Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
         Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
         Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
@@ -82,8 +83,6 @@ Route::middleware('auth')->group(function () {
 
     });  
     
-    
-
 
 
 });

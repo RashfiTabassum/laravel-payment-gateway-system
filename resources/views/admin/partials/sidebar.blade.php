@@ -43,10 +43,10 @@
                         <p>Currencies</p>
                     </a>
                 </li>
-                <li class="nav-item">
+              <li class="nav-item">
                     <a href="{{ route('pos.index') }}"
                        class="nav-link {{ request()->routeIs('pos.*') ? 'active' : '' }}">
-                        <i class="nav-icon bi bi-cash-coin"></i>
+                        <i class="nav-icon bi bi-credit-card"></i>
                         <p>Pos</p>
                     </a>
                 </li>
