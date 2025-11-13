@@ -1,6 +1,6 @@
 @extends('admin.layouts')
 
-@section('title', 'Add Admin')
+@section('title', 'Add Merchant')
 
 @section('content')
     {{-- Global alert messages --}}
@@ -14,40 +14,42 @@
                         <div class="card-header">
                             <div class="row mb-3">
                                 <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                    <h3>Add User</h3>
+                                    <h3>Add Merchant</h3>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body col-md-6">
+                        <div class="card-body">
 
-                            <form method="POST" action="{{ route('admins.store') }}">
+                            <form action="{{ route('merchants.store') }}" method="POST">
                                 @csrf
 
                                 <div class="mb-3">
-                                    <label class="form-label">Name</label>
-                                    <input type="text" name="name" value="{{ old('name') }}" class="form-control"
+                                    <label>Name</label>
+                                    <input type="text" name="name" class="form-control" value="{{ old('name') }}"
                                            required>
+                                    @error('name')<small class="text-danger">{{ $message }}</small>@enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" name="email" value="{{ old('email') }}" class="form-control"
+                                    <label>Email</label>
+                                    <input type="email" name="email" class="form-control" value="{{ old('email') }}"
                                            required>
+                                    @error('email')<small class="text-danger">{{ $message }}</small>@enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Password</label>
+                                    <label>Password</label>
                                     <input type="password" name="password" class="form-control" required>
+                                    @error('password')<small class="text-danger">{{ $message }}</small>@enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Confirm Password</label>
+                                    <label>Confirm Password</label>
                                     <input type="password" name="password_confirmation" class="form-control" required>
                                 </div>
 
-                                {{-- If your users table has a "status" column --}}
                                 <div class="mb-3">
-                                    <label class="form-label">Status</label>
+                                    <label>Status</label>
                                     <select name="status" class="form-select">
                                         <option value="1" {{ old('status', 1) == 1 ? 'selected' : '' }}>Active</option>
                                         <option value="0" {{ old('status', 1) == 0 ? 'selected' : '' }}>Inactive
@@ -55,10 +57,8 @@
                                     </select>
                                 </div>
 
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-primary">Save</button>
-                                    <a href="{{ route('admins.index') }}" class="btn btn-outline-secondary">Cancel</a>
-                                </div>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                <a href="{{ route('merchants.index') }}" class="btn btn-secondary">Cancel</a>
                             </form>
                         </div>
                     </div>

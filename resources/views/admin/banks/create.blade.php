@@ -1,9 +1,11 @@
 @extends('admin.layouts')
 
-@section('title', 'POS')
+@section('title', 'Create Bank')
 
 @section('content')
+    {{-- Global alert messages --}}
     @include('admin.partials.alerts')
+
     <div class="app-content">
         <div class="container">
             <div class="row">
@@ -12,21 +14,25 @@
                         <div class="card-header">
                             <div class="row mb-3">
                                 <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                    <h3>Pos</h3>
-                                    <a href="{{ route('pos.create') }}" class="btn btn-primary">Add Pos</a>
+                                    <h3>Add Bank</h3>
                                 </div>
                             </div>
                         </div>
-
                         <div class="card-body">
-                            @include('admin.pos._table', ['poses' => $poses])
-                        </div>
+                            <form method="POST" action="{{ route('admin.banks.store') }}">
+                                @csrf
 
-                        <div class="card-footer">
-                            {{ $poses->withQueryString()->links() }}
+                                @include('admin.banks.form')
+
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                    <a href="{{ route('admin.banks.index') }}" class="btn btn-secondary">Cancel</a>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 @endsection

@@ -1,4 +1,4 @@
-<table class="table table-bordered align-middle">
+<table class="table table-hover table-bordered .table-striped">
   <thead>
     <tr>
       <th style="width:60px">#</th>
