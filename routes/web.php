@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
         ->names('admins')
         ->except(['show']);
 
-
+});
     // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::get('pos/create', [PosController::class, 'create'])->name('pos.create');
