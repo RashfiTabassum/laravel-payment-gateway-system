@@ -24,12 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::get('banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-
+});
     Route::resource('admins', AdminController::class)
         ->names('admins')
         ->except(['show']);
 
-});
+
     // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::get('pos/create', [PosController::class, 'create'])->name('pos.create');
