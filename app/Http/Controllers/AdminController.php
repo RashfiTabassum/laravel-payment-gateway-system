@@ -103,6 +103,10 @@ class AdminController extends Controller
 
         return back()->with('ok', 'Admin deleted successfully.');
     }
+     public function show(Admin $admin)
+    {
+        return view('admin.admins.show', compact('admin'));
+    }
     
 
 }

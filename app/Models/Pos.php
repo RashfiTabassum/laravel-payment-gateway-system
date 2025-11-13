@@ -37,5 +37,10 @@ class Pos extends Model
     {
         return $this->belongsTo(\App\Models\Currency::class);
     }
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
 
 }
