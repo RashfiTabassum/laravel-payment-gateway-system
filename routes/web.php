@@ -30,7 +30,7 @@ Route::middleware('auth')->group(function () {
         ->except(['show']);
 
 
-    // POS
+  // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
     Route::get('pos/create', [PosController::class, 'create'])->name('pos.create');
     Route::post('pos', [PosController::class, 'store'])->name('pos.store');

@@ -1,20 +1,20 @@
 @extends('admin.layouts')
-
+ 
 @section('title', 'POS List')
-
+ 
 @section('content')
     <div class="app-content">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-
+ 
                     {{-- Flash message --}}
                     @if(session('success'))
                         <div class="alert alert-success mt-3">
                             {{ session('success') }}
                         </div>
                     @endif
-
+ 
                     <div class="card mt-3">
                         <div class="card-header">
                             <div class="row mb-3">
@@ -28,7 +28,7 @@
                                 </div>
                             </div>
                         </div>
-
+ 
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-hover table-bordered table-striped mb-0">
@@ -71,12 +71,12 @@
                                                        class="btn btn-primary btn-sm">
                                                         View
                                                     </a>
-
+ 
                                                     <a href="{{ route('pos.edit', $pos) }}"
                                                        class="btn btn-secondary btn-sm">
                                                         Edit
                                                     </a>
-
+ 
                                                     <form action="{{ route('pos.destroy', $pos) }}"
                                                           method="POST"
                                                           class="d-inline">
@@ -100,14 +100,14 @@
                                     </tbody>
                                 </table>
                             </div>
-
+ 
                             {{-- Pagination --}}
                             <div class="mt-3">
                                 {{ $poses->links() }}
                             </div>
                         </div>
                     </div>
-
+ 
                 </div>
             </div>
         </div>

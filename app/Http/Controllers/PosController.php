@@ -1,12 +1,12 @@
 <?php
-
+ 
 namespace App\Http\Controllers;
-
+ 
 use App\Models\Pos;
 use App\Models\Bank;
 use App\Models\Currency;
 use Illuminate\Http\Request;
-
+ 
 class PosController extends Controller
 {
     public function index()
@@ -14,54 +14,54 @@ class PosController extends Controller
         $poses = Pos::with(['bank', 'currency'])
             ->latest('id')
             ->paginate(10);
-
+ 
         return view('admin.pos.index', compact('poses'));
     }
-
+ 
     public function create()
     {
         return view('admin.pos.create', $this->lists());
     }
-
+ 
     public function store(Request $request)
     {
         Pos::create($request->validate($this->rules()));
-
+ 
         return redirect()
             ->route('pos.index')
             ->with('success', 'POS created successfully.');
     }
-
+ 
     public function show(Pos $pos)
     {
         $pos->load(['bank', 'currency']);
-
+ 
         return view('admin.pos.show', compact('pos'));
     }
-
+ 
     public function edit(Pos $pos)
     {
         return view('admin.pos.edit', ['po' => $pos] + $this->lists());
     }
-
+ 
     public function update(Request $request, Pos $pos)
     {
         $pos->update($request->validate($this->rules()));
-
+ 
         return redirect()
             ->route('pos.index')
             ->with('success', 'POS updated successfully.');
     }
-
+ 
     public function destroy(Pos $pos)
     {
         $pos->delete();
-
+ 
         return redirect()
             ->route('pos.index')
             ->with('success', 'POS deleted.');
     }
-
+ 
     private function rules(): array
     {
         return [
@@ -75,7 +75,7 @@ class PosController extends Controller
             'settlement_day'        => 'required|integer|min:0',
         ];
     }
-
+ 
     private function lists(): array
     {
         return [

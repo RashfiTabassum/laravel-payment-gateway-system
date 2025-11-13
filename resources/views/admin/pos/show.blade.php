@@ -1,7 +1,7 @@
 @extends('admin.layouts')
-
+ 
 @section('title', 'View POS')
-
+ 
 @section('content')
     <div class="app-content">
         <div class="container">
@@ -69,7 +69,7 @@
                                     <td>{{ $pos->created_at?->format('Y-m-d') ?? '—' }}</td>
                                 </tr>
                             </table>
-
+ 
                             <a href="{{ route('pos.index') }}" class="btn btn-secondary">Back</a>
                         </div>
                     </div>
