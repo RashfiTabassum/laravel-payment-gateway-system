@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
         ->names('admins')
         ->except(['show']);
 
+});
 
     // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
@@ -37,7 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
     Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
     Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
-});
+
 
 
 
