@@ -8,6 +8,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\TransactionController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -44,6 +45,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/{bank}', [BankController::class, 'update'])->name('update');
             Route::delete('/{bank}', [BankController::class, 'destroy'])->name('destroy');
         });
+
         Route::prefix('currencies')->name('currencies.')->group(function () {
             Route::get('/', [CurrencyController::class, 'index'])->name('index');
             Route::get('/create', [CurrencyController::class, 'create'])->name('create');
@@ -65,16 +67,17 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    Route::middleware('userType:2')->group(function () {
+    Route::middleware('userType:2')->prefix('merchant')->as('merchant.')->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'merchantDashboard'])->name('dashboard');
 
-        Route::get('merchant/dashboard', [DashboardController::class, 'merchantDashboard'])->name('merchant.dashboard');
+        Route::get('pos', [PosController::class, 'merchantIndex'])->name('pos.index');
+        Route::get('pos/{pos}', [PosController::class, 'merchantShow'])->name('pos.show');
+        Route::get('profile', [MerchantController::class, 'profile'])->name('profile');
 
-        // Merchant sees only their own info
-        Route::get('merchant/pos', [PosController::class, 'merchantIndex'])->name('merchant.pos.index');
-        Route::get('merchant/pos/{pos}', [PosController::class, 'merchantShow'])->name('merchant.pos.show');
-        Route::get('merchant/profile', [MerchantController::class, 'profile'])->name('merchant.profile');
-
-    });
+        // ✅ Now your resource routes will be named 'merchant.transactions.*'
+        Route::resource('transactions', TransactionController::class)
+            ->only(['index', 'create', 'store', 'show']);
+    });  
     
     
 

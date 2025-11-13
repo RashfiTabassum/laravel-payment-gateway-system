@@ -19,7 +19,13 @@
                         <p>My Info</p>
                     </a>
                 </li>
-
+                <li class="nav-item">
+                    <a href="{{ route('merchant.transactions.index') }}" 
+                       class="nav-link {{ request()->routeIs('merchant.transactions.*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-currency-exchange"></i>
+                        <p>Transactions</p>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>

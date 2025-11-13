@@ -48,4 +48,14 @@ class User extends Authenticatable
             $this->attributes['password'] = Hash::make($value);
         }
     }
+
+    /**
+     * Get the merchant profile associated with the user.
+     */
+    public function merchant()
+    {
+        return $this->hasOne(Merchant::class, 'user_id', 'id');
+    }
+
+
 }
