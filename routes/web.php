@@ -49,14 +49,20 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('banks', BankController::class);
-    });
+
 
     Route::resource('merchants', MerchantController::class)
         ->names('merchants');
 
 
+Route::prefix('admin/banks')->name('admin.banks.')->group(function () {
+    Route::get('/', [BankController::class, 'index'])->name('index');
+    Route::get('/create', [BankController::class, 'create'])->name('create');
+    Route::post('/', [BankController::class, 'store'])->name('store');
+    Route::get('/{bank}', [BankController::class, 'show'])->name('show');
+    Route::get('/{bank}/edit', [BankController::class, 'edit'])->name('edit');
+    Route::put('/{bank}', [BankController::class, 'update'])->name('update');
+    Route::delete('/{bank}', [BankController::class, 'destroy'])->name('destroy');
 });
 
 

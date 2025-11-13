@@ -2,9 +2,9 @@
 
 @section('title', 'Create Bank')
 
+
 @section('content')
-    {{-- Global alert messages --}}
-    @include('admin.partials.alerts')
+@include('admin.partials.alerts')
 
     <div class="app-content">
         <div class="container">
