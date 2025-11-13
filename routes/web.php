@@ -8,6 +8,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\CurrencyController;
+use App\http\Controllers\PaymentController;
 
 Route::get('/', fn() => redirect()->route('login'));
 
@@ -58,6 +59,8 @@ Route::middleware('auth')->group(function () {
 
 
 });
+
+// Route::post('/make-payment', [PaymentController::class, 'payment'])->name('make.payment');
 
 
 
