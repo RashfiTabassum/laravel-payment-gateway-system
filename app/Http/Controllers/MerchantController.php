@@ -6,6 +6,7 @@ use App\Models\Merchant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use App\Models\User;
 
 class MerchantController extends Controller
 {
@@ -32,8 +33,8 @@ class MerchantController extends Controller
         Merchant::create([
             'name'      => $data['name'],
             'email'     => $data['email'],
-            'password'  => Hash::make($data['password']),
-            'user_type' => 2,   // make sure it’s an admin row
+            'password' => $data['password'],
+            'user_type' => User::TYPE_MERCHANT,   // make sure it’s an admin row
             // 'status'  => 1,   // if you use a status column
         ]);
 
@@ -68,7 +69,7 @@ class MerchantController extends Controller
         }
 
         // keep it an admin (in case someone changed this field elsewhere)
-        $merchant->user_type = 2;
+        $merchant->user_type = User::TYPE_MERCHANT;
 
         $merchant->save();
 

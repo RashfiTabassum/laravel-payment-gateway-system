@@ -9,12 +9,17 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    private function redirectToDashboard($user)
+    private function redirectToDashboard(User $user)
     {
-        return $user->user_type == 1
-            ? redirect()->route('admin.dashboard')
-            : redirect()->route('merchant.dashboard');
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->isMerchant()) {
+            return redirect()->route('merchant.dashboard');
+        }
+
+        abort(403, 'Unauthorized user type.');
     }
+
 
     public function showLogin() {
         return view('admin.auth.login');
@@ -50,7 +55,8 @@ class AuthController extends Controller
             'name'       => ['required','string','max:100'],
             'email'      => ['required','email','max:100','unique:users,email'],
             'password'   => ['required','string','min:6','confirmed'],
-            'user_type'  => ['required','in:1,2'], // 1 admin, 2 merchant
+            'user_type' => ['required', 'in:' . User::TYPE_ADMIN . ',' . User::TYPE_MERCHANT],
+
         ]);
 
         $user = User::create([
