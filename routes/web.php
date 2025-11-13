@@ -45,16 +45,6 @@ Route::middleware('auth')->group(function () {
         ->names('merchants');
 
 
-Route::prefix('currencies')->name('currencies.')->group(function () {
-    Route::get('/', [CurrencyController::class, 'index'])->name('index');
-    Route::get('/create', [CurrencyController::class, 'create'])->name('create');
-    Route::post('/', [CurrencyController::class, 'store'])->name('store');
-    Route::get('/{currency}', [CurrencyController::class, 'show'])->name('show');
-    Route::get('/{currency}/edit', [CurrencyController::class, 'edit'])->name('edit');
-    Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
-    Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
-});
-
 Route::prefix('admin/banks')->name('admin.banks.')->group(function () {
     Route::get('/', [BankController::class, 'index'])->name('index');
     Route::get('/create', [BankController::class, 'create'])->name('create');
