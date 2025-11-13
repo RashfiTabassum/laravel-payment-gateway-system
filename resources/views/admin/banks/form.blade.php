@@ -37,9 +37,10 @@
     <div class="col-md-6">
         <label>Status</label>
         <select name="status" class="form-control" required>
-             <option value="0" {{ old('status', $bank->status ?? '') == 0 ? 'selected' : '' }}>Active</option>
-             <option value="1" {{ old('status', $bank->status ?? '') == 1 ? 'selected' : '' }}>Inactive</option>
+             <option value="1" {{ old('status', $bank->status ?? '') == 1 ? 'selected' : '' }}>Active</option>
+             <option value="0" {{ old('status', $bank->status ?? '') == 0 ? 'selected' : '' }}>Inactive</option>
         </select>
+
 
     </div>
 </div>
