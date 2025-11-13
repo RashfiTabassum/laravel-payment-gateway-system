@@ -41,15 +41,6 @@ Route::middleware('auth')->group(function () {
 
 
  
-Route::prefix('admin/merchants')->name('admin.merchants.')->group(function () {
-    Route::get('/', [MerchantController::class, 'index'])->name('index');
-    Route::get('/create', [MerchantController::class, 'create'])->name('create');
-    Route::post('/', [MerchantController::class, 'store'])->name('store');
-    Route::get('/{merchant}', [MerchantController::class, 'show'])->name('show');
-    Route::get('/{merchant}/edit', [MerchantController::class, 'edit'])->name('edit');
-    Route::put('/{merchant}', [MerchantController::class, 'update'])->name('update');
-    Route::delete('/{merchant}', [MerchantController::class, 'destroy'])->name('destroy');
-});
 
 Route::prefix('merchants')->name('merchants.')->group(function () {
     Route::get('/', [MerchantController::class, 'index'])->name('index');
