@@ -1,6 +1,22 @@
 <?php
- 
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
-class Bank extends Model { protected $fillable = ['name','url','refund_url']; }
- 
+
+class Bank extends Model
+{
+    protected $table = 'banks';
+
+    protected $fillable = [
+        'name',
+        'issuer_name',
+        'api_url',
+        'user_name',
+        'user_password',
+        'status',
+        'code',
+        'branch'
+    ];
+}
+
