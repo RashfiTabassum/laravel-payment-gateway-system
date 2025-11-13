@@ -41,13 +41,14 @@
                         <td>{{ $bank->user_name }}</td>
                         <td>{{ $bank->branch }}</td>
                         <td>{{ $bank->code }}</td>
-                       <td>
-                             @if($bank->status == 1)
-                                  <span class="badge bg-success">Active</span>
-                             @else
-                                   <span class="badge bg-danger">Inactive</span>
-                             @endif
-                        </td>
+                      <td>
+                              @if($bank->status == \App\Models\Bank::STATUS_ACTIVE)
+        <span class="badge bg-success">Active</span>
+    @else
+        <span class="badge bg-danger">Inactive</span>
+    @endif
+</td>
+
                         <td>{{ $bank->created_at?->format('Y-m-d') ?? '—' }}</td>
                         <td>
                             <a href="{{ route('admin.banks.show', $bank) }}" class="btn btn-sm btn-primary">View</a>
