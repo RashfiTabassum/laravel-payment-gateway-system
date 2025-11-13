@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    private function redirectToDashboard(User $user)
+    {
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->isMerchant()) {
+            return redirect()->route('merchant.dashboard');
+        }
+
+        abort(403, 'Unauthorized user type.');
+    }
+
+
     public function showLogin() {
         return view('admin.auth.login');
     }
@@ -27,7 +39,8 @@ class AuthController extends Controller
                 Auth::logout();
                 return back()->withErrors(['email'=>'Your account is not active.'])->onlyInput('email');
             }
-            return redirect()->route('dashboard');
+            $user = Auth::user();
+            return $this->redirectToDashboard($user);
         }
 
         return back()->withErrors(['email'=>'Invalid credentials'])->onlyInput('email');
@@ -42,7 +55,8 @@ class AuthController extends Controller
             'name'       => ['required','string','max:100'],
             'email'      => ['required','email','max:100','unique:users,email'],
             'password'   => ['required','string','min:6','confirmed'],
-            'user_type'  => ['required','in:1,2'], // 1 admin, 2 merchant
+            'user_type' => ['required', 'in:' . User::TYPE_ADMIN . ',' . User::TYPE_MERCHANT],
+
         ]);
 
         $user = User::create([
@@ -55,7 +69,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('dashboard');
+        return $this->redirectToDashboard($user);
     }
 
     public function logout(Request $request) {

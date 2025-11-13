@@ -20,7 +20,7 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 // Redirect all authenticated users to the unified dashboard
-                return redirect()->route('dashboard');
+                return redirect()->route('admin.dashboard');
             }
         }
 
