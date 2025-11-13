@@ -23,13 +23,13 @@ Route::middleware('auth')->group(function () {
     // Banks
     Route::get('banks', [BankController::class, 'index'])->name('banks.index');
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');});
 
     Route::resource('admins', AdminController::class)
         ->names('admins')
         ->except(['show']);
 
-});
+
 
     // POS
     Route::get('pos', [PosController::class, 'index'])->name('pos.index');
@@ -38,6 +38,25 @@ Route::middleware('auth')->group(function () {
     Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
     Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
     Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
+
+
+ 
+Route::prefix('admin/merchants')->name('admin.merchants.')->group(function () {
+    Route::get('/', [MerchantController::class, 'index'])->name('index');
+    Route::get('/create', [MerchantController::class, 'create'])->name('create');
+    Route::post('/', [MerchantController::class, 'store'])->name('store');
+    Route::get('/{merchant}', [MerchantController::class, 'show'])->name('show');
+    Route::get('/{merchant}/edit', [MerchantController::class, 'edit'])->name('edit');
+    Route::put('/{merchant}', [MerchantController::class, 'update'])->name('update');
+    Route::delete('/{merchant}', [MerchantController::class, 'destroy'])->name('destroy');
+});
+
+Route::prefix('merchants')->name('merchants.')->group(function () {
+    Route::get('/', [MerchantController::class, 'index'])->name('index');
+    Route::get('/{merchant}', [MerchantController::class, 'show'])->name('show');
+   
+});
+
 
     Route::prefix('currencies')->name('currencies.')->group(function () {
         Route::get('/', [CurrencyController::class, 'index'])->name('index');
@@ -48,11 +67,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/{currency}', [CurrencyController::class, 'update'])->name('update');
         Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
     });
-
-    Route::resource('merchants', MerchantController::class)
-        ->names('merchants');
-
-
+  
 Route::prefix('admin/banks')->name('admin.banks.')->group(function () {
     Route::get('/', [BankController::class, 'index'])->name('index');
     Route::get('/create', [BankController::class, 'create'])->name('create');
