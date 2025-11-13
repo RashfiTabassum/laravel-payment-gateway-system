@@ -12,7 +12,7 @@ class Merchant extends Authenticatable
     use Notifiable;
  
     // Use the existing users table
-    protected $table = 'users';
+    protected $table = 'merchants';
  
     protected $fillable = [
         'name', 'email', 'password', 'user_type', 'status',
@@ -31,9 +31,9 @@ class Merchant extends Authenticatable
      */
     protected static function booted(): void
     {
-        static::addGlobalScope('adminsOnly', function (Builder $q) {
-            $q->where('user_type', 2);
-        });
+        // static::addGlobalScope('adminsOnly', function (Builder $q) {
+        //     $q->where('user_type', 2);
+        // });
  
         static::creating(function (self $merchant) {
             $merchant->user_type = 2;
@@ -54,4 +54,10 @@ class Merchant extends Authenticatable
             ? $value
             : Hash::make($value);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
 }
