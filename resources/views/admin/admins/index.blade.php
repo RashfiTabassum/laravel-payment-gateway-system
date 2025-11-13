@@ -37,17 +37,20 @@
                                         <td>{{ $a->id }}</td>
                                         <td>{{ $a->name }}</td>
                                         <td>{{ $a->email }}</td>
-                                        <td>
-                                            @if((int)($a->status ?? 1) === 1)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-danger">Inactive</span>
-                                            @endif
-                                        </td>
+                                       <td>
+    @if($a->status) 
+        <span class="badge bg-success">Active</span>
+    @else
+        <span class="badge bg-danger">Inactive</span>
+    @endif
+</td>
+
                                         <td>{{ $a->created_at?->format('Y-m-d') ?? '—' }}</td>
                                         <td>
+                                           
                                             <a href="{{ route('admins.edit', $a) }}"
                                                class="btn btn-sm btn-secondary">Edit</a>
+
                                             <form action="{{ route('admins.destroy', $a) }}"
                                                   method="POST" class="d-inline"
                                                   onsubmit="return confirm('Delete this admin?')">

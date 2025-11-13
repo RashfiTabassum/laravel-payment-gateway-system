@@ -7,6 +7,8 @@
         </div>
     </div>
 @endif
+ 
+
 @if($errors->any())
     <div class="container mt-3">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">

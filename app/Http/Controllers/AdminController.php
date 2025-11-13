@@ -6,18 +6,13 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-/**
- * @param \Illuminate\Http\Request $request
- * @param \App\Models\Admin $admin
- */
-
-
 
 class AdminController extends Controller
 {
     public function index()
     {
         $admins = Admin::latest('id')->paginate(10);
+
         return view('admin.admins.index', compact('admins'));
     }
 
@@ -42,16 +37,22 @@ class AdminController extends Controller
             'status'    => Admin::STATUS_ACTIVE,
         ]);
 
-        return redirect()->route('admins.index')->with('ok', 'Admin created successfully!');
+        return redirect()
+            ->route('admins.index')
+            ->with('ok', 'Admin created successfully!');
     }
 
-    public function edit(Admin $admin)
+    public function edit($id)
     {
+        $admin = Admin::findOrFail($id);
+
         return view('admin.admins.edit', compact('admin'));
     }
 
-    public function update(Request $request, Admin $admin)
+    public function update(Request $request, $id)
     {
+        $admin = Admin::findOrFail($id);
+
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:100'],
             'email'    => [
@@ -59,6 +60,7 @@ class AdminController extends Controller
                 Rule::unique('users', 'email')->ignore($admin->id),
             ],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'status'   => ['nullable'], // or 'required|boolean'
         ]);
 
         $admin->fill([
@@ -70,22 +72,29 @@ class AdminController extends Controller
             $admin->password = Hash::make($data['password']);
         }
 
-        // enforce role & (optionally) keep active
+        // always enforce admin role
         $admin->user_type = Admin::USER_TYPE_ADMIN;
-        // $admin->status    = Admin::STATUS_ACTIVE; // uncomment if you want to force active
+
+        // update status from form (1 / 0)
+        $admin->status = $request->boolean('status');
 
         $admin->save();
 
-        return redirect()->route('admins.index')->with('ok', 'Admin updated successfully!');
+        return redirect()
+            ->route('admins.index')
+            ->with('ok', 'Admin updated successfully!');
     }
 
-    public function destroy(Admin $admin)
+    public function destroy($id)
     {
-        // If you haven't configured an 'admin' guard, use auth() instead of auth('admin')
+        $admin = Admin::findOrFail($id);
+
+        // Prevent deleting yourself
         if (auth()->id() === $admin->id) {
             return back()->with('err', 'You cannot delete your own account.');
         }
 
+        // Ensure at least one admin remains
         if (Admin::count() <= 1) {
             return back()->with('err', 'At least one admin must remain.');
         }
@@ -94,4 +103,6 @@ class AdminController extends Controller
 
         return back()->with('ok', 'Admin deleted successfully.');
     }
+    
+
 }

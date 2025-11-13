@@ -26,8 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::resource('admins', AdminController::class)
-        ->names('admins')
-        ->except(['show']);
+        ->names('admins');
+        
 
 
     // POS
@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('pos/{pos}/edit', [PosController::class, 'edit'])->name('pos.edit');
     Route::put('pos/{pos}', [PosController::class, 'update'])->name('pos.update');
     Route::delete('pos/{pos}', [PosController::class, 'destroy'])->name('pos.destroy');
+    });
 
 
     Route::prefix('currencies')->name('currencies.')->group(function () {
@@ -49,14 +50,20 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{currency}', [CurrencyController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('banks', BankController::class);
-    });
+
 
     Route::resource('merchants', MerchantController::class)
         ->names('merchants');
 
 
+Route::prefix('admin/banks')->name('admin.banks.')->group(function () {
+    Route::get('/', [BankController::class, 'index'])->name('index');
+    Route::get('/create', [BankController::class, 'create'])->name('create');
+    Route::post('/', [BankController::class, 'store'])->name('store');
+    Route::get('/{bank}', [BankController::class, 'show'])->name('show');
+    Route::get('/{bank}/edit', [BankController::class, 'edit'])->name('edit');
+    Route::put('/{bank}', [BankController::class, 'update'])->name('update');
+    Route::delete('/{bank}', [BankController::class, 'destroy'])->name('destroy');
 });
 
 
