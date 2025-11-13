@@ -20,7 +20,7 @@ class Pos extends Model
     ];
 
     protected $casts = [
-        'status' => 'integer',
+        'status'                => 'integer',
         'commission_percentage' => 'decimal:2',
         'commission_fixed'      => 'decimal:2',
         'bank_fee'              => 'decimal:2',
@@ -37,5 +37,4 @@ class Pos extends Model
     {
         return $this->belongsTo(\App\Models\Currency::class);
     }
-
 }

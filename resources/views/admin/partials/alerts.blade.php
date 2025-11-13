@@ -8,10 +8,7 @@
     </div>
 @endif
  
-<<<<<<< HEAD
-=======
-
->>>>>>> 25011be24d8e76f22c8f7a6bf92bc7ee7d04700f
+ 
 @if($errors->any())
     <div class="container mt-3">
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -24,8 +21,4 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-<<<<<<< HEAD
 @endif
-=======
-@endif
->>>>>>> 25011be24d8e76f22c8f7a6bf92bc7ee7d04700f
