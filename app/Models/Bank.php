@@ -18,5 +18,17 @@ class Bank extends Model
         'code',
         'branch'
     ];
-}
 
+    // Status constants
+    public const STATUS_ACTIVE = 1;
+    public const STATUS_INACTIVE = 0;
+
+    // Optional helper method for Blade
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_ACTIVE => 'Active',
+            self::STATUS_INACTIVE => 'Inactive',
+        ];
+    }
+}
