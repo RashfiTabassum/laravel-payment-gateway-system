@@ -26,17 +26,17 @@
                                 <div class="mb-3">
                                     <label>Name</label>
                                     <input type="text" name="name" class="form-control" value="{{ old('name') }}">
-                                    @error('name')<small class="text-danger">{{ $message }}</small>@enderror
+                                    <!-- @error('name')<small class="text-danger">{{ $message }}</small>@enderror -->
                                 </div>
                                 <div class="mb-3">
                                     <label>Symbol</label>
                                     <input type="text" name="symbol" class="form-control" value="{{ old('symbol') }}">
-                                    @error('symbol')<small class="text-danger">{{ $message }}</small>@enderror
+                                    <!-- @error('symbol')<small class="text-danger">{{ $message }}</small>@enderror -->
                                 </div>
                                 <div class="mb-3">
                                     <label>Code</label>
                                     <input type="text" name="code" class="form-control" value="{{ old('code') }}">
-                                    @error('code')<small class="text-danger">{{ $message }}</small>@enderror
+                                    <!-- @error('code')<small class="text-danger">{{ $message }}</small>@enderror -->
                                 </div>
                                 <button class="btn btn-primary">Save</button>
                                 <a href="{{ route('currencies.index') }}" class="btn btn-secondary">Cancel</a>
