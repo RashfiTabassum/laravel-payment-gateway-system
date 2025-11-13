@@ -73,6 +73,10 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+        'merchants' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\Merchant::class,
+        ],
     ],
 
     /*

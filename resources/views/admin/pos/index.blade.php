@@ -12,7 +12,7 @@
                         <div class="card-header">
                             <div class="row mb-3">
                                 <div class="col-md-12 d-flex justify-content-between align-items-center">
-                                    <h3>Currencies</h3>
+                                    <h3>Pos</h3>
                                     <a href="{{ route('pos.create') }}" class="btn btn-primary">Add Pos</a>
                                 </div>
                             </div>
