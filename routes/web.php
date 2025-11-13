@@ -70,13 +70,16 @@ Route::middleware('auth')->group(function () {
     Route::middleware('userType:2')->prefix('merchant')->as('merchant.')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'merchantDashboard'])->name('dashboard');
 
-        Route::get('pos', [PosController::class, 'merchantIndex'])->name('pos.index');
-        Route::get('pos/{pos}', [PosController::class, 'merchantShow'])->name('pos.show');
         Route::get('profile', [MerchantController::class, 'profile'])->name('profile');
 
         // ✅ Now your resource routes will be named 'merchant.transactions.*'
         Route::resource('transactions', TransactionController::class)
-            ->only(['index', 'create', 'store', 'show']);
+            ->only(['index', 'show']);
+
+        Route::patch('transactions/{transaction}/update-status', [TransactionController::class, 'updateStatus'])
+            ->name('transactions.updateStatus');
+            
+
     });  
     
     

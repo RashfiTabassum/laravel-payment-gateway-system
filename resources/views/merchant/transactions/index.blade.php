@@ -7,7 +7,6 @@
         <div class="container mt-3">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3>My Transactions</h3>
-                <!-- <a href="{{ route('merchant.transactions.create') }}" class="btn btn-primary">+ New Transaction</a> -->
             </div>
 
             @include('merchant.partials.alerts')
