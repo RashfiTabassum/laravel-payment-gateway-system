@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use App\Models\Pos;
 use App\Models\Bank;
 use App\Models\Merchant;
@@ -10,7 +11,6 @@ use App\Models\Currency;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -31,7 +31,7 @@ class PaymentController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'response_code' => 422,
+                'response_code' => 1, // Basic Validation
                 'response_message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 422);
@@ -39,63 +39,70 @@ class PaymentController extends Controller
 
         $merchant = Merchant::find($data['merchant_id']);
         if (!$merchant) {
-            return response()->json(['response_code' => 422, 'response_message' => 'Merchant not found']);
+            return response()->json(['response_code' => 2, 'response_message' => 'Merchant not found','data'=>[]], 422);
         }
 
+        
         $pos = Pos::first();
         if (!$pos) {
-            return response()->json(['response_code' => 422, 'response_message' => 'POS not found']);
+            return response()->json(['response_code' => 3, 'response_message' => 'POS not found','data'=>[]], 422);
         }
 
         $bank = Bank::find($pos->bank_id);
         if (!$bank) {
-            return response()->json(['response_code' => 422, 'response_message' => 'Bank not found']);
+            return response()->json(['response_code' => 4, 'response_message' => 'Bank not found','data'=>[]], 422);
         }
 
         $currency = Currency::where('code', $data['currency_code'])->first();
         if (!$currency) {
-            return response()->json(['response_code' => 422, 'response_message' => 'Invalid currency code']);
+            return response()->json(['response_code' => 5, 'response_message' => 'Invalid currency code','data'=>[]], 422);
         }
 
 
-        if ($bank->user_name !== 'dummybank' || $bank->user_password !== '!apple') {
-            return response()->json([
-                'response_code' => 422,
-                'response_message' => 'Wrong bank credentials',
-                'data' => [] 
-            ]);
+        $transaction = Transaction::where('invoice_id', $data['invoice_id'])->where('merchant_id', $data['merchant_id'])->first();
+        // dd($transaction);
+        if (!empty($transaction)) {
+            return response()->json(['response_code' => 6, 'response_message' => 'Invoice already exists','data'=>[]], 422);
         }
 
-        // Validate card info
-        if (strlen($data['card_no']) < 16 || strlen($data['card_cvv']) < 3 || strlen($data['card_exp']) < 4) {
-            return response()->json([
-                'response_code' => 422,
-                'response_message' => 'Card number or CVV number is invalid',
-                'data' => []
-            ]);
+        
+        $payload = [
+            'username'          => $bank->user_name,
+            'password'          => $bank->user_password,
+            'card_no'           => $data['card_no'],
+            'card_holder_name'  => $data['card_holder_name'],
+            'card_cvv'          => $data['card_cvv'],
+            'card_exp'          => $data['card_exp'],
+            'amount'            => $data['amount'],
+            'invoice_id'        => $data['invoice_id'],
+        ];
+
+        
+        $bankResponse = Http::asForm()->post($bank->api_url, $payload);
+        $bankResult = $bankResponse->json();
+
+        
+
+        $responseCode = $bankResult['code'] ?? 422;
+        $responseMessage = $bankResult['message'] ?? 'Unknown error';
+        $bankOrderId = $bankResult['data']['bank_order_id'] ?? 'DBOI' . time(); 
+        $paymentAt = $bankResult['data']['payment_at'] ?? now();
+
+        // Step 6: Determine transaction state
+        $transactionState = 'Failed';
+        if (isset($bankResult['code']) && $bankResult['code'] == 100) {
+            $transactionState = 'Completed';
         }
 
-        // Validate amount
-        if ($data['amount'] <= 0) {
-            return response()->json([
-                'response_code' => 422,
-                'response_message' => "Amount can't be less than or equal 0",
-                'data' => []
-            ]);
-        }
-
-        // Everything is OK, generate dummy bank order ID
-        $bankOrderId = 'DBOI' . time() . rand(100, 999);
-        $paymentAt = now()->format('Y-m-d H:i:s');
-
-        $commissionPercentage = $pos->commission_percentage ?? 2.5; // example values like dummy-bank
+        // Step 7: Calculate fee and net
+        $commissionPercentage = $pos->commission_percentage ?? 2.5;
         $commissionFixed = $pos->commission_fixed ?? 0.5;
         $bankFee = $pos->bank_fee ?? 0.2;
 
         $fee = ($data['amount'] * $commissionPercentage / 100) + $commissionFixed + $bankFee;
         $net = $data['amount'] - $fee;
 
-        // Record transaction
+        // Step 8: Record transaction
         $transactionData = [
             'invoice_id'        => $data['invoice_id'],
             'order_id'          => $bankOrderId,
@@ -103,18 +110,26 @@ class PaymentController extends Controller
             'net'               => $net,
             'fee'               => $fee,
             'refunded_amount'   => 0,
-            'transaction_state' => 'Completed',
+            'transaction_state' => $transactionState,
+            'settlement_date'   => $paymentAt,
             'pos_id'            => $pos->id,
             'currency_id'       => $currency->id,
             'merchant_id'       => $merchant->id,
         ];
 
-        Transaction::create($transactionData);
 
-        // Return response in dummy-bank format
+        $result=Transaction::create($transactionData);
+        if(!$result){
+            $responseCode=422;
+            $responseMessage="Payment Failed";
+        }
+        
+        
+
+
         return response()->json([
-            'response_code' => 100,
-            'response_message' => 'Success',
+            'response_code' => $responseCode,
+            'response_message' => $responseMessage,
             'data' => [
                 'bank_order_id' => $bankOrderId,
                 'order_id' => $bankOrderId,
@@ -129,5 +144,6 @@ class PaymentController extends Controller
                 ]
             ]
         ]);
+
     }
 }
