@@ -39,23 +39,23 @@ class PaymentController extends Controller
 
         $merchant = Merchant::find($data['merchant_id']);
         if (!$merchant) {
-            return response()->json(['response_code' => 404, 'response_message' => 'Merchant not found'], 404);
+            return response()->json(['response_code' => 2, 'response_message' => 'Merchant not found'], 422);
         }
 
         
         $pos = Pos::first();
         if (!$pos) {
-            return response()->json(['response_code' => 404, 'response_message' => 'POS not found'], 404);
+            return response()->json(['response_code' => 3, 'response_message' => 'POS not found'], 422);
         }
 
         $bank = Bank::find($pos->bank_id);
         if (!$bank) {
-            return response()->json(['response_code' => 404, 'response_message' => 'Bank not found'], 404);
+            return response()->json(['response_code' => 4, 'response_message' => 'Bank not found'], 422);
         }
 
         $currency = Currency::where('code', $data['currency_code'])->first();
         if (!$currency) {
-            return response()->json(['response_code' => 422, 'response_message' => 'Invalid currency code'], 422);
+            return response()->json(['response_code' => 5, 'response_message' => 'Invalid currency code'], 422);
         }
 
         
