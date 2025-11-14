@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('admins', AdminController::class)->names('admins');
         Route::resource('merchants', MerchantController::class)->names('merchants');
         Route::get('banks', [BankController::class, 'index'])->name('banks.index');
+       
+
+
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('banks', BankController::class);
         });
