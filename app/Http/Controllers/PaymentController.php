@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pos;
 use App\Models\Bank;
 use App\Models\Merchant;
+use App\Models\Refund;
 use App\Models\Currency;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -70,7 +71,6 @@ class PaymentController extends Controller
             $response = Http::asForm()->post($bank->api_url, $payload);
             $bankResponse = $response->json();
 
-            // Inject currency_code right after amount
             if (isset($bankResponse['data']) && is_array($bankResponse['data'])) {
                 $bankResponse['data'] = array_merge(
                     [
@@ -169,4 +169,115 @@ class PaymentController extends Controller
         ]);
 
     }
+    public function refund(Request $request)
+    {
+        $data = $request->json()->all();
+
+        // 1️⃣ Validate request
+        $validator = Validator::make($data, [
+            'merchant_id'   => 'required|exists:merchants,id',
+            'order_id'      => 'required|string|max:50',
+            'refund_amount' => 'required|numeric|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 422,
+                'message' => $validator->errors(),
+            ], 422);
+        }
+
+        // 2️⃣ Fetch POS, Bank, Merchant, Transaction
+        $pos = Pos::first();
+        $bank = Bank::find($pos->bank_id);
+        $merchant = Merchant::find($data['merchant_id']);
+        $transaction = Transaction::where('order_id', $data['order_id'])
+            ->where('merchant_id', $merchant->id)
+            ->first();
+
+        if (!$transaction) {
+            return response()->json([
+                'code' => 404,
+                'message' => 'Transaction not found'
+            ], 404);
+        }
+
+        $refundAmount = (int) $data['refund_amount'];
+        $payload = [
+            'username'      => $bank->user_name,
+            'password'      => $bank->user_password,
+            'amount'        => (int) $transaction->gross, 
+            'refund_amount' => $refundAmount,           
+            'order_id'      => $data['order_id'],
+        ];
+
+        // 4️⃣ Call bank API
+        try {
+            $bank_refund_url = str_replace(".php", "-refund.php", $bank->api_url);
+            $response = Http::asForm()->post($bank_refund_url, $payload);
+            $bankResponse = $response->json();
+
+            if (!$bankResponse) {
+                return response()->json([
+                    'code' => 500,
+                    'message' => 'Bank API did not return a valid JSON response.',
+                    'data' => [
+                        'url' => $bank_refund_url,
+                        'payload' => $payload,
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'message' => 'Bank API connection failed.',
+                'data' => ['error' => $e->getMessage()]
+            ], 500);
+        }
+
+        // 5️⃣ Update transaction & create refund record if bank says success
+        $success = (isset($bankResponse['code']) && (int)$bankResponse['code'] === 100) ||
+                (isset($bankResponse['message']) && strtolower($bankResponse['message']) === 'success');
+
+        if ($success) {
+            $transaction->refunded_amount += $refundAmount;
+            $transaction->transaction_state = ($transaction->refunded_amount >= $transaction->gross)
+                ? 'Refunded' : 'Partial Refunded';
+            $transaction->save();
+
+            Refund::create([
+                'transaction_id'    => $transaction->id,
+                'invoice_id'        => $transaction->invoice_id,
+                'transaction_state' => $transaction->transaction_state,
+                'amount'            => $refundAmount,
+            ]);
+        }
+
+        // 6️⃣ Prepare payment-style response
+        $currency = $merchant->currency ?? (object)['code' => 'BDT']; // default currency
+        $paymentResponse = [
+            'response_code'    => $success ? 200 : 500,
+            'response_message' => $success ? 'Transaction recorded successfully.' : 'Refund failed.',
+            'data' => [
+                'bank_order_id'  => $bankResponse['data']['bank_order_id'] ?? null,
+                'amount'         => $bankResponse['data']['amount'] ?? $refundAmount,
+                'currency_code'  => $currency->code,
+                'payment_at'     => $bankResponse['data']['payment_at'] ?? now()->format('Y-m-d H:i:s'),
+                'fee_details'    => [
+                    'commission_percentage' => $pos->commission_percentage ?? 0,
+                    'commission_fixed'      => $pos->commission_fixed ?? 0,
+                    'bank_fee'              => $pos->bank_fee ?? 0,
+                ],
+            ],
+        ];
+
+        // 7️⃣ Return both responses
+        return response()->json([
+            'bank_response'    => $bankResponse,
+            'payment_response' => $paymentResponse,
+        ]);
+    }
+
 }
