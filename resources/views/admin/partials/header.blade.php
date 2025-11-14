@@ -44,5 +44,7 @@
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
 </head>
 
+
 <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 @stack('styles')
+

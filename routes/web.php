@@ -8,6 +8,8 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\CurrencyController;
+use App\http\Controllers\PaymentController;
+
 use App\Http\Controllers\TransactionController;
  
 Route::get('/', fn() => redirect()->route('login'));
@@ -78,8 +80,7 @@ Route::middleware('auth')->group(function () {
         Route::get('dashboard', [DashboardController::class, 'merchantDashboard'])->name('dashboard');
  
         Route::get('profile', [MerchantController::class, 'profile'])->name('profile');
- 
-        // ✅ Now your resource routes will be named 'merchant.transactions.*'
+
         Route::resource('transactions', TransactionController::class)
             ->only(['index', 'show']);
  
@@ -88,15 +89,15 @@ Route::middleware('auth')->group(function () {
            
  
     });  
-   
-   
- 
- 
- 
-    
-
 
 });
+
+// Route::post('/make-payment', [PaymentController::class, 'payment'])->name('make.payment');
+
+
+
+
+
  
  
  

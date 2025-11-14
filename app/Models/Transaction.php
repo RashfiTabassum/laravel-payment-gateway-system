@@ -23,7 +23,6 @@ class Transaction extends Model
         'settlement_date',
     ];
 
-    // Relationships
     public function merchant()
     {
         return $this->belongsTo(Merchant::class);
