@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Merchant;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Models\User;
+use Illuminate\Support\Str;
+use Exception;
 
 class MerchantController extends Controller
 {
@@ -25,20 +27,39 @@ class MerchantController extends Controller
     {
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:100'],
-            // ✅ validate against users table
             'email'    => ['required', 'email', 'max:100', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'address'  => ['nullable', 'string'],
         ]);
 
-        Merchant::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'password' => $data['password'],
-            'user_type' => User::TYPE_MERCHANT,   // make sure it’s an admin row
-            // 'status'  => 1,   // if you use a status column
-        ]);
+        try {
+            $user = User::create([
+                'name'      => $data['name'],
+                'email'     => $data['email'],
+                'password'  => Hash::make($data['password']),
+                'user_type' => User::TYPE_MERCHANT,
+            ]);
 
-        return redirect()->route('merchants.index')->with('ok', 'Merchant created successfully!');
+            Merchant::create([
+                'user_id'   => $user->id,
+                'store_id'  => 'store_' . Str::random(12),
+                'name'      => $data['name'],
+                'email'     => $data['email'],
+                'address'   => $data['address'] ?? null,
+                'status'    => 1,
+            ]);
+
+            return redirect()
+                ->route('merchants.index')
+                ->with('message', 'Merchant created successfully!')
+                ->with('alert-type', 'success');
+
+        } catch (Exception $e) {
+            return back()
+                ->withInput()
+                ->with('message', $e->getMessage())
+                ->with('alert-type', 'danger');
+        }
     }
 
     public function edit(Merchant $merchant)
@@ -49,59 +70,94 @@ class MerchantController extends Controller
     public function update(Request $request, Merchant $merchant)
     {
         $data = $request->validate([
-            // ✅ no unique rule on name
-            'name'  => ['required', 'string', 'max:100'],
-            // ✅ unique on users table; ignore current admin row
-            'email' => [
-                'required', 'email', 'max:100',
-                Rule::unique('users', 'email')->ignore($merchant->id),
+            'user_id'  => ['required', 'integer'],
+            'store_id' => ['required', 'string'],
+            'name'     => ['required', 'string', 'max:100'],
+            'email'    => [
+                'required',
+                'email',
+                'max:100',
+                Rule::unique('users', 'email')->ignore($merchant->user_id),
             ],
-            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'address'  => ['nullable', 'string'],
+            'status'   => ['required', 'integer'],
+            'password' => ['nullable', 'confirmed', 'min:6'],
         ]);
 
-        $merchant->fill([
-            'name'  => $data['name'],
-            'email' => $data['email'],
-        ]);
+        try {
+            $merchant->update([
+                'user_id'  => $data['user_id'],
+                'store_id' => $data['store_id'],
+                'name'     => $data['name'],
+                'email'    => $data['email'],
+                'address'  => $data['address'] ?? null,
+                'status'   => $data['status'],
+            ]);
 
-        if (!empty($data['password'])) {
-            $merchant->password = Hash::make($data['password']);
+            $user = User::find($merchant->user_id);
+            if ($user) {
+                $user->name  = $data['name'];
+                $user->email = $data['email'];
+
+                if (!empty($data['password'])) {
+                    $user->password = Hash::make($data['password']);
+                }
+
+                $user->save();
+            }
+
+            return redirect()
+                ->route('merchants.index')
+                ->with('message', 'Merchant updated successfully!')
+                ->with('alert-type', 'success');
+
+        } catch (Exception $e) {
+            return back()
+                ->withInput()
+                ->with('message', $e->getMessage())
+                ->with('alert-type', 'danger');
         }
-
-        // keep it an admin (in case someone changed this field elsewhere)
-        $merchant->user_type = User::TYPE_MERCHANT;
-
-        $merchant->save();
-
-        return redirect()->route('merchants.index')->with('ok', 'Merchant updated successfully!');
     }
 
     public function destroy(Merchant $merchant)
     {
-        if (auth()->id() === $merchant->id) {
-            return back()->with('err', 'You cannot delete your own account.');
+        try {
+            if (auth()->id() === $merchant->user_id) {
+                return back()
+                    ->with('message', 'You cannot delete your own account.')
+                    ->with('alert-type', 'danger');
+            }
+
+            if (Merchant::count() <= 1) {
+                return back()
+                    ->with('message', 'At least one merchant must remain.')
+                    ->with('alert-type', 'danger');
+            }
+
+            $user = User::find($merchant->user_id);
+            if ($user) $user->delete();
+
+            $merchant->delete();
+
+            return back()
+                ->with('message', 'Merchant deleted successfully.')
+                ->with('alert-type', 'success');
+
+        } catch (Exception $e) {
+            return back()
+                ->with('message', $e->getMessage())
+                ->with('alert-type', 'danger');
         }
-
-        // Admin::count() is already scoped to user_type=1 if your Admin model has that scope
-        if (Merchant::count() <= 1) {
-            return back()->with('err', 'At least one merchant must remain.');
-        }
-
-        $merchant->delete();
-
-        return back()->with('ok', 'Merchant deleted successfully.');
     }
 
-    //show method
     public function show(Merchant $merchant)
     {
-        return view('admin.merchants.show', compact('merchant')); //
+        return view('admin.merchants.show', compact('merchant'));
     }
-    
+
     public function profile()
     {
         $user = auth()->user();
         return view('merchant.profile', compact('user'));
     }
-
 }

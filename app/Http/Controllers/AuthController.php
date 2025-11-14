@@ -50,32 +50,53 @@ class AuthController extends Controller
         return view('admin.auth.register');
     }
 
-    public function register(Request $request) {
-        $data = $request->validate([
-            'name'       => ['required','string','max:100'],
-            'email'      => ['required','email','max:100','unique:users,email'],
-            'password'   => ['required','string','min:6','confirmed'],
-            'user_type' => ['required', 'in:' . User::TYPE_ADMIN . ',' . User::TYPE_MERCHANT],
+    public function register(Request $request)
+{
+    $data = $request->validate([
+        'name'       => ['required','string','max:100'],
+        'email'      => ['required','email','max:100','unique:users,email'],
+        'password'   => ['required','string','min:6','confirmed'],
+        'user_type'  => ['required', 'in:' . User::TYPE_ADMIN . ',' . User::TYPE_MERCHANT],
+    ]);
 
+    // 1️⃣ Create user in users table
+    $user = User::create([
+        'name'      => $data['name'],
+        'email'     => $data['email'],
+        'password'  => Hash::make($data['password']),
+        'user_type' => (int) $data['user_type'],
+        'status'    => 1,
+    ]);
+
+    // 2️⃣ Insert merchant data if merchant selected
+    if ($user->user_type == User::TYPE_MERCHANT) {
+
+        \App\Models\Merchant::create([
+            'user_id'  => $user->id,
+            'store_id' => uniqid('store_'),    // auto-generate Store ID
+            'name'     => $user->name,
+            'email'    => $user->email,
+            'address'  => null,
+            'status'   => 1,
         ]);
-
-        $user = User::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'password'  => Hash::make($data['password']),
-            'user_type' => (int)$data['user_type'],
-            'status'    => 1,
-        ]);
-
-        Auth::login($user);
-
-        return $this->redirectToDashboard($user);
     }
 
-    public function logout(Request $request) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
-    }
+    Auth::login($user);
+
+    return $this->redirectToDashboard($user);
+}
+
+
+  public function logout()
+{
+    Auth::logout();
+
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect()->route('login');
+}
+
+
+
 }
