@@ -63,7 +63,8 @@ class AuthController extends Controller
     $user = User::create([
         'name'      => $data['name'],
         'email'     => $data['email'],
-        'password'  => Hash::make($data['password']),
+        // 'password'  => Hash::make($data['password']),
+        'password'  => $data['password'], // ✔️ Let model mutator hash it
         'user_type' => (int) $data['user_type'],
         'status'    => 1,
     ]);
