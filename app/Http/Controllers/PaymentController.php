@@ -85,7 +85,7 @@ class PaymentController extends Controller
 
         $responseCode = $bankResult['code'] ?? 422;
         $responseMessage = $bankResult['message'] ?? 'Unknown error';
-        $bankOrderId = $bankResult['data']['bank_order_id'] ?? 'DBOI' . time(); 
+        $bankOrderId = $bankResult['data']['bank_order_id'] ?? null; 
         $paymentAt = $bankResult['data']['payment_at'] ?? now();
 
         // Step 6: Determine transaction state
@@ -95,9 +95,10 @@ class PaymentController extends Controller
         }
 
         // Step 7: Calculate fee and net
-        $commissionPercentage = $pos->commission_percentage ?? 2.5;
-        $commissionFixed = $pos->commission_fixed ?? 0.5;
-        $bankFee = $pos->bank_fee ?? 0.2;
+        $commissionPercentage = $pos->commission_percentage ?? 0.0;
+        $commissionFixed = $pos->commission_fixed ?? 0.0;
+        $bankFee = $pos->bank_fee ?? 0.0;
+        // Log::info("")---> all action should be under try-catch 
 
         $fee = ($data['amount'] * $commissionPercentage / 100) + $commissionFixed + $bankFee;
         $net = $data['amount'] - $fee;
