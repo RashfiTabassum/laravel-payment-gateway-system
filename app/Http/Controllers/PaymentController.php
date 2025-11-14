@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use App\Models\Pos;
 use App\Models\Bank;
 use App\Models\Merchant;
 use App\Models\Currency;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -31,143 +31,103 @@ class PaymentController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'code'    => 422,
-                'message' => $validator->errors(),
+                'response_code' => 422,
+                'response_message' => 'Validation failed',
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $merchant = Merchant::find($data['merchant_id']);
         if (!$merchant) {
-            return response()->json(['code' => 404, 'message' => 'Merchant not found']);
+            return response()->json(['response_code' => 422, 'response_message' => 'Merchant not found']);
         }
 
         $pos = Pos::first();
         if (!$pos) {
-            return response()->json(['code' => 404, 'message' => 'POS not found']);
+            return response()->json(['response_code' => 422, 'response_message' => 'POS not found']);
         }
 
         $bank = Bank::find($pos->bank_id);
         if (!$bank) {
-            return response()->json(['code' => 404, 'message' => 'Bank not found']);
+            return response()->json(['response_code' => 422, 'response_message' => 'Bank not found']);
         }
 
         $currency = Currency::where('code', $data['currency_code'])->first();
         if (!$currency) {
-            return response()->json(['code' => 404, 'message' => 'Invalid currency code']);
+            return response()->json(['response_code' => 422, 'response_message' => 'Invalid currency code']);
         }
 
-        $payload = [
-            'username'          => $bank->user_name,
-            'password'          => $bank->user_password,
-            'card_no'           => $data['card_no'],
-            'card_holder_name'  => $data['card_holder_name'],
-            'card_cvv'          => $data['card_cvv'],
-            'card_exp'          => $data['card_exp'],
-            'amount'            => $data['amount'],
-        ];
 
-        try {
-            $response = Http::asForm()->post($bank->api_url, $payload);
-            $bankResponse = $response->json();
-
-            //prepare array
-            // Inject currency_code right after amount
-            if (isset($bankResponse['data']) && is_array($bankResponse['data'])) {
-                $bankResponse['data'] = array_merge(
-                    [
-                        'bank_order_id' => $bankResponse['data']['bank_order_id'] ?? null,
-                        'amount'        => $bankResponse['data']['amount'] ?? $data['amount'],
-                        'currency_code' => $currency->code
-                    ],
-                    array_diff_key($bankResponse['data'], ['bank_order_id'=>1,'amount'=>1])
-                );
-            } else {
-                $bankResponse['data'] = [
-                    'amount'        => $data['amount'],
-                    'currency_code' => $currency->code
-                ];
-            }
-
-        } catch (\Exception $e) {
-
-            // Build a failed bank response with currency_code
-            $bankResponse = [
-                'code'    => 500,
-                'message' => 'Bank API connection failed',
-                'data'    => [
-                    'amount'        => $data['amount'],
-                    'currency_code' => $currency->code
-                ]
-            ];
-
-            Transaction::create([
-                'invoice_id'        => $data['invoice_id'],
-                'order_id'          => Str::random(10),
-                'transaction_state' => 'Failed',
-                'gross'             => $data['amount'],
-                'net'               => 0,
-                'fee'               => 0,
-                'refunded_amount'   => 0,
-                'pos_id'            => $pos->id,
-                'currency_id'       => $currency->id,
-                'merchant_id'       => $merchant->id,
-            ]);
-
+        if ($bank->user_name !== 'dummybank' || $bank->user_password !== '!apple') {
             return response()->json([
-                'code'    => 500,
-                'message' => 'Failed to connect to bank API.',
-                'data'    => [
-                    'bank_response' => $bankResponse,
-                    'invoice_id'    => $data['invoice_id'],
-                    'fee_details'   => [
-                        'commission_percentage' => $pos->commission_percentage ?? 0,
-                        'commission_fixed'      => $pos->commission_fixed ?? 0,
-                        'bank_fee'              => $pos->bank_fee ?? 0,
-                    ],
-                ],
+                'response_code' => 422,
+                'response_message' => 'Wrong bank credentials',
+                'data' => []
             ]);
         }
 
-        $status = (
-            (isset($bankResponse['code']) && (int)$bankResponse['code'] === 100) ||
-            (isset($bankResponse['message']) && strtolower($bankResponse['message']) === 'success')
-        ) ? 'Completed' : 'Failed';
+        // Validate card info
+        if (strlen($data['card_no']) < 16 || strlen($data['card_cvv']) < 3 || strlen($data['card_exp']) < 4) {
+            return response()->json([
+                'response_code' => 422,
+                'response_message' => 'Card number or CVV number is invalid',
+                'data' => []
+            ]);
+        }
 
-        $commissionPercentage = $pos->commission_percentage ?? 0;
-        $commissionFixed      = $pos->commission_fixed ?? 0;
-        $bankFee              = $pos->bank_fee ?? 0;
+        // Validate amount
+        if ($data['amount'] <= 0) {
+            return response()->json([
+                'response_code' => 422,
+                'response_message' => "Amount can't be less than or equal 0",
+                'data' => []
+            ]);
+        }
+
+        // Everything is OK, generate dummy bank order ID
+        $bankOrderId = 'DBOI' . time() . rand(100, 999);
+        $paymentAt = now()->format('Y-m-d H:i:s');
+
+        $commissionPercentage = $pos->commission_percentage ?? 2.5; // example values like dummy-bank
+        $commissionFixed = $pos->commission_fixed ?? 0.5;
+        $bankFee = $pos->bank_fee ?? 0.2;
 
         $fee = ($data['amount'] * $commissionPercentage / 100) + $commissionFixed + $bankFee;
         $net = $data['amount'] - $fee;
 
-        $transaction = Transaction::create([
+        // Record transaction
+        $transactionData = [
             'invoice_id'        => $data['invoice_id'],
-            'order_id'          => Str::random(10),
-            'transaction_state' => $status,
+            'order_id'          => $bankOrderId,
             'gross'             => $data['amount'],
             'net'               => $net,
             'fee'               => $fee,
             'refunded_amount'   => 0,
+            'transaction_state' => 'Completed',
             'pos_id'            => $pos->id,
             'currency_id'       => $currency->id,
             'merchant_id'       => $merchant->id,
-        ]);
+        ];
 
+        Transaction::create($transactionData);
+
+        // Return response in dummy-bank format
         return response()->json([
-            'response_code'    => 200,
-            'response_message' => 'Transaction recorded successfully.',
+            'response_code' => 100,
+            'response_message' => 'Success',
             'data' => [
-                'bank_order_id'  => $bankResponse['data']['bank_order_id'] ?? null,
-                'amount'         => $bankResponse['data']['amount'] ?? $data['amount'],
-                'currency_code'  => $currency->code,
-                'payment_at'     => $bankResponse['data']['payment_at'] ?? now()->format('Y-m-d H:i:s'),
-                'fee_details'    => [
-                    'commission_percentage' => $pos->commission_percentage ?? 0,
-                    'commission_fixed'      => $pos->commission_fixed ?? 0,
-                    'bank_fee'              => $pos->bank_fee ?? 0,
-                ],
-            ],
+                'bank_order_id' => $bankOrderId,
+                'order_id' => $bankOrderId,
+                'invoice_id' => $data['invoice_id'],
+                'amount' => $data['amount'],
+                'currency_code' => $currency->code,
+                'payment_at' => $paymentAt,
+                'fee_details' => [
+                    'commission_percentage' => $commissionPercentage,
+                    'commission_fixed' => $commissionFixed,
+                    'bank_fee' => $bankFee,
+                ]
+            ]
         ]);
-
     }
 }
