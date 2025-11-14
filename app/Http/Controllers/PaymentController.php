@@ -70,6 +70,7 @@ class PaymentController extends Controller
             $response = Http::asForm()->post($bank->api_url, $payload);
             $bankResponse = $response->json();
 
+            //prepare array
             // Inject currency_code right after amount
             if (isset($bankResponse['data']) && is_array($bankResponse['data'])) {
                 $bankResponse['data'] = array_merge(

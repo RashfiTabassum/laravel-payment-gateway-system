@@ -1,6 +1,6 @@
 <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
     <div class="sidebar-brand">
-        <a href="{{ route('dashboard') }}" class="brand-link">
+        <a href="{{ route('admin.dashboard') }}" class="brand-link">
             <span class="brand-text fw-light">PayGate</span>
         </a>
     </div>
@@ -9,8 +9,8 @@
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" id="navigation">
                 <li class="nav-item">
-                    <a href="{{ route('dashboard') }}"
-                       class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-speedometer2"></i>
                         <p>Dashboard</p>
                     </a>
@@ -43,10 +43,10 @@
                         <p>Currencies</p>
                     </a>
                 </li>
-                <li class="nav-item">
+              <li class="nav-item">
                     <a href="{{ route('pos.index') }}"
                        class="nav-link {{ request()->routeIs('pos.*') ? 'active' : '' }}">
-                        <i class="nav-icon bi bi-cash-coin"></i>
+                        <i class="nav-icon bi bi-credit-card"></i>
                         <p>Pos</p>
                     </a>
                 </li>
