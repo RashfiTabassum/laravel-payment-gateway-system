@@ -42,7 +42,7 @@ class PaymentController extends Controller
             return response()->json(['response_code' => 2, 'response_message' => 'Merchant not found','data'=>[]], 422);
         }
 
-        
+
         $pos = Pos::first();
         if (!$pos) {
             return response()->json(['response_code' => 3, 'response_message' => 'POS not found','data'=>[]], 422);
@@ -65,7 +65,7 @@ class PaymentController extends Controller
             return response()->json(['response_code' => 6, 'response_message' => 'Invoice already exists','data'=>[]], 422);
         }
 
-        
+
         $payload = [
             'username'          => $bank->user_name,
             'password'          => $bank->user_password,
@@ -77,15 +77,15 @@ class PaymentController extends Controller
             'invoice_id'        => $data['invoice_id'],
         ];
 
-        
+
         $bankResponse = Http::asForm()->post($bank->api_url, $payload);
         $bankResult = $bankResponse->json();
 
-        
+
 
         $responseCode = $bankResult['code'] ?? 422;
         $responseMessage = $bankResult['message'] ?? 'Unknown error';
-        $bankOrderId = $bankResult['data']['bank_order_id'] ?? 'DBOI' . time(); 
+        $bankOrderId = $bankResult['data']['bank_order_id'] ?? 'DBOI' . time();
         $paymentAt = $bankResult['data']['payment_at'] ?? now();
 
         // Step 6: Determine transaction state
@@ -123,8 +123,8 @@ class PaymentController extends Controller
             $responseCode=422;
             $responseMessage="Payment Failed";
         }
-        
-        
+
+
 
 
         return response()->json([
