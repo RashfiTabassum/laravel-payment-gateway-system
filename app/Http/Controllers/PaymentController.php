@@ -62,7 +62,7 @@ class PaymentController extends Controller
             return response()->json([
                 'response_code' => 422,
                 'response_message' => 'Wrong bank credentials',
-                'data' => []
+                'data' => [] 
             ]);
         }
 
