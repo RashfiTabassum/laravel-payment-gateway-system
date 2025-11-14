@@ -31,11 +31,12 @@ class PaymentController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'response_code' => 422,
+                'response_code' => 1, // Basic Validation
                 'response_message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 422);
         }
+
 
         $merchant = Merchant::find($data['merchant_id']);
         if (!$merchant) {
@@ -60,11 +61,12 @@ class PaymentController extends Controller
 
         if ($bank->user_name !== 'dummybank' || $bank->user_password !== '!apple') {
             return response()->json([
-                'response_code' => 422,
+                'response_code' => 4, // Invalid Credential
                 'response_message' => 'Wrong bank credentials',
                 'data' => []
-            ]);
+            ], 401); // 401 Unauthorized is more semantically correct
         }
+
 
         // Validate card info
         if (strlen($data['card_no']) < 16 || strlen($data['card_cvv']) < 3 || strlen($data['card_exp']) < 4) {
@@ -113,7 +115,7 @@ class PaymentController extends Controller
 
         // Return response in dummy-bank format
         return response()->json([
-            'response_code' => 100,
+            'response_code' => 100, // Successful Operation
             'response_message' => 'Success',
             'data' => [
                 'bank_order_id' => $bankOrderId,
@@ -128,6 +130,7 @@ class PaymentController extends Controller
                     'bank_fee' => $bankFee,
                 ]
             ]
-        ]);
+        ], 200);
+
     }
 }
