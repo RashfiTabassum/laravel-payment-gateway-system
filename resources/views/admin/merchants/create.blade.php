@@ -3,7 +3,6 @@
 @section('title', 'Add Merchant')
 
 @section('content')
-    {{-- Global alert messages --}}
     @include('admin.partials.alerts')
 
     <div class="app-content">
@@ -18,49 +17,72 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
 
+                        <div class="card-body">
                             <form action="{{ route('merchants.store') }}" method="POST">
                                 @csrf
 
+                                {{-- NAME --}}
                                 <div class="mb-3">
-                                    <label>Name</label>
-                                    <input type="text" name="name" class="form-control" value="{{ old('name') }}"
-                                           required>
-                                    @error('name')<small class="text-danger">{{ $message }}</small>@enderror
+                                    <label class="form-label">Name</label>
+                                    <input type="text" name="name" class="form-control"
+                                           value="{{ old('name') }}" required>
+                                    @error('name')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
+                                {{-- EMAIL --}}
                                 <div class="mb-3">
-                                    <label>Email</label>
-                                    <input type="email" name="email" class="form-control" value="{{ old('email') }}"
-                                           required>
-                                    @error('email')<small class="text-danger">{{ $message }}</small>@enderror
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control"
+                                           value="{{ old('email') }}" required>
+                                    @error('email')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
+                                {{-- ADDRESS (optional) --}}
                                 <div class="mb-3">
-                                    <label>Password</label>
+                                    <label class="form-label">Address (optional)</label>
+                                    <textarea name="address" class="form-control" rows="3">{{ old('address') }}</textarea>
+                                    @error('address')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                {{-- PASSWORD --}}
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
                                     <input type="password" name="password" class="form-control" required>
-                                    @error('password')<small class="text-danger">{{ $message }}</small>@enderror
+                                    @error('password')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
+                                {{-- CONFIRM PASSWORD --}}
                                 <div class="mb-3">
-                                    <label>Confirm Password</label>
+                                    <label class="form-label">Confirm Password</label>
                                     <input type="password" name="password_confirmation" class="form-control" required>
                                 </div>
 
+                                {{-- STATUS --}}
                                 <div class="mb-3">
-                                    <label>Status</label>
+                                    <label class="form-label">Status</label>
                                     <select name="status" class="form-select">
                                         <option value="1" {{ old('status', 1) == 1 ? 'selected' : '' }}>Active</option>
-                                        <option value="0" {{ old('status', 1) == 0 ? 'selected' : '' }}>Inactive
-                                        </option>
+                                        <option value="0" {{ old('status', 1) == 0 ? 'selected' : '' }}>Inactive</option>
                                     </select>
+                                    @error('status')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Save</button>
                                 <a href="{{ route('merchants.index') }}" class="btn btn-secondary">Cancel</a>
                             </form>
                         </div>
+
                     </div>
                 </div>
             </div>

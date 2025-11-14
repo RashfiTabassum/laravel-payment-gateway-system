@@ -1,7 +1,7 @@
 @extends('admin.layouts')
-
+ 
 @section('title', 'View Currency')
-
+ 
 @section('content')
     <div class="app-content">
         <div class="container">

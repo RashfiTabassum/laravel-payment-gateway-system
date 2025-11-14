@@ -1,10 +1,10 @@
 @extends('admin.layouts')
-
+ 
 @section('title', 'Add POS')
-
+ 
 @section('content')
     @include('admin.partials.alerts')
-
+ 
     <div class="app-content">
         <div class="container">
             <div class="row">
