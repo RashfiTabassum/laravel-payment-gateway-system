@@ -134,7 +134,7 @@ class PaymentController extends Controller
     {
         $data = $request->json()->all();
 
-        // 1️⃣ Validate request
+        // Validate request
         $validator = Validator::make($data, [
             'merchant_id'   => 'required|exists:merchants,id',
             'order_id'      => 'required|string|max:50',
@@ -143,49 +143,37 @@ class PaymentController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'response_code' => 1,
+                'response_code' => 1, // Basic Validation
                 'response_message' => 'Validation failed',
                 'errors' => $validator->errors(),
             ], 422);
         }
 
-        // 2️⃣ Fetch transaction, POS, Bank, Currency
-        $transaction = Transaction::where('order_id', $data['order_id'])
-            ->where('merchant_id', $data['merchant_id'])
-            ->first();
+        // Fetch transaction, POS, Bank, Currency
+        $transaction = Transaction::where('order_id', $data['order_id'])->where('merchant_id', $data['merchant_id'])->first();
 
-        if (!$transaction) {
-            return response()->json([
-                'response_code' => 2,
-                'response_message' => 'Transaction not found'
-            ], 422);
+        if (empty($transaction)) {
+            return response()->json(['response_code' => 2, 'response_message' => 'Transaction not found'], 422);
         }
 
         $pos = $transaction->pos;
         $bank = $pos->bank;
         $currency = $transaction->currency;
 
-        $amount = (int)$transaction->gross;
-        $refunded = (int)$transaction->refunded_amount;
-        $refundAmount = (int)$data['refund_amount'];
+        $amount = $transaction->gross;
+        $refunded = $transaction->refunded_amount;
+        $refundAmount = $data['refund_amount'];
 
-        // 3️⃣ Validate refund rules
+        // Validate refund rules
         if ($refundAmount <= 0) {
-            return response()->json([
-                'response_code' => 3,
-                // 'response_message' => 'Refund amount must be greater than 0.'
-                'response_message' => $$refundAmount
-            ], 422);
+            return response()->json(['response_code' => 3, 'response_message' => 'Refund amount must be greater than 0.'], 422);
         }
 
         if ($refundAmount > ($amount - $refunded)) {
-            return response()->json([
-                'response_code' => 4,
-                'response_message' => 'Refund amount cannot be greater than remaining transaction amount.' ,
-            ], 422);
+            return response()->json(['response_code' => 4, 'response_message' => 'Refund amount cannot be greater than remaining transaction amount.'], 422);
         }
 
-        // 4️⃣ Prepare bank payload
+        // Prepare bank payload
         $payload = [
             'username'      => $bank->user_name,
             'password'      => $bank->user_password,
@@ -194,22 +182,18 @@ class PaymentController extends Controller
             'order_id'      => $transaction->order_id,
         ];
 
-        // 5️⃣ Call bank API
+        // Call bank API
         try {
             $bank_refund_url = str_replace(".php", "-refund.php", $bank->api_url);
             $bankResponse = Http::asForm()->post($bank_refund_url, $payload)->json();
         } catch (\Exception $e) {
-            return response()->json([
-                'response_code' => 5,
-                'response_message' => 'Failed to connect to bank API',
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['response_code' => 5, 'response_message' => 'Failed to connect to bank API', 'error' => $e->getMessage()], 500);
         }
 
-        // 6️⃣ Determine transaction state
+        // Determine transaction state
         $success = isset($bankResponse['code']) && (int)$bankResponse['code'] === 100;
 
-        // 7️⃣ Update transaction & create refund record if successful
+        // Update transaction & create refund record if successful
         if ($success) {
             $transaction->refunded_amount += $refundAmount;
             $transaction->transaction_state = ($transaction->refunded_amount == $transaction->gross)
@@ -230,7 +214,7 @@ class PaymentController extends Controller
         $commissionFixed = $pos->commission_fixed ?? 0.5;
         $bankFee = $pos->bank_fee ?? 0.2;
 
-        $fee = (int)($refundAmount * $commissionPercentage / 100) + $commissionFixed + $bankFee;
+        $fee = ($refundAmount * $commissionPercentage / 100) + $commissionFixed + $bankFee;
         $net = $refundAmount - $fee;
 
         $paymentResponse = [
