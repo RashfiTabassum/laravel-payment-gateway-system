@@ -2,7 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\http\Controllers\PaymentController;
+use App\http\Controllers\RefundController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,3 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/make-payment', [PaymentController::class, 'payment']);
+
+Route::post('/make-refund', [RefundController::class, 'refund']);
