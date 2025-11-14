@@ -33,17 +33,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('admins', AdminController::class)->names('admins');
         Route::resource('merchants', MerchantController::class)->names('merchants');
         Route::get('banks', [BankController::class, 'index'])->name('banks.index');
-<<<<<<< HEAD
        
 
 
-=======
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('banks', BankController::class);
         });
  
  
->>>>>>> 1e3ddcb053295ce5e649656f66bc3b0e52722bb7
         Route::prefix('admin/banks')->name('admin.banks.')->group(function () {
             Route::get('/', [BankController::class, 'index'])->name('index');
             Route::get('/create', [BankController::class, 'create'])->name('create');

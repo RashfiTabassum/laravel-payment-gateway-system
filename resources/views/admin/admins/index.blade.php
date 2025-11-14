@@ -47,12 +47,8 @@
 
                                         <td>{{ $a->created_at?->format('Y-m-d') ?? '—' }}</td>
                                         <td>
-<<<<<<< HEAD
-                                            
-=======
                                            <a href="{{ route('admins.show', $a) }}"class="btn btn-sm btn-primary">View</a>
 
->>>>>>> 1e3ddcb053295ce5e649656f66bc3b0e52722bb7
                                             <a href="{{ route('admins.edit', $a) }}"
                                                class="btn btn-sm btn-secondary">Edit</a>
 
