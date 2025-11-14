@@ -1,0 +1,74 @@
+{
+	"info": {
+		"_postman_id": "d3b16228-dbfe-41f8-8154-0075adeb9871",
+		"name": "PayGate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40737282"
+	},
+	"item": [
+		{
+			"name": "make-refund",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchant_id\": 1,\r\n    \"order_id\": \"JoCI4OmrK6\",\r\n    \"refund_amount\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/make-refund",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"make-refund"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "make-payment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"merchant_id\": 1,\r\n    \"invoice_id\": \"INV-12345\",\r\n    \"currency_code\": \"USD\",\r\n    \"card_no\": \"1234123412341234\",\r\n    \"card_holder_name\": \"John Doe\",\r\n    \"card_cvv\": \"123\",\r\n    \"card_exp\": \"1225\",\r\n    \"amount\": 500\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/make-payment",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"make-payment"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
