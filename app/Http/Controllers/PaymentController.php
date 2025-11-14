@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use App\Models\Pos;
 use App\Models\Bank;
 use App\Models\Merchant;
@@ -9,8 +10,8 @@ use App\Models\Refund;
 use App\Models\Currency;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class PaymentController extends Controller
@@ -18,7 +19,7 @@ class PaymentController extends Controller
     public function payment(Request $request)
     {
         $data = $request->json()->all();
-
+ 
         $validator = Validator::make($data, [
             'merchant_id'      => 'required|exists:merchants,id',
             'invoice_id'       => 'required|string|max:50',
@@ -29,34 +30,37 @@ class PaymentController extends Controller
             'card_exp'         => 'required|digits:4',
             'amount'           => 'required|numeric|min:1',
         ]);
-
+ 
         if ($validator->fails()) {
             return response()->json([
-                'code'    => 422,
-                'message' => $validator->errors(),
+                'response_code' => 1, // Basic Validation
+                'response_message' => 'Validation failed',
+                'errors' => $validator->errors(),
             ], 422);
         }
-
+ 
         $merchant = Merchant::find($data['merchant_id']);
         if (!$merchant) {
-            return response()->json(['code' => 404, 'message' => 'Merchant not found']);
+            return response()->json(['response_code' => 404, 'response_message' => 'Merchant not found'], 404);
         }
-
+ 
+       
         $pos = Pos::first();
         if (!$pos) {
-            return response()->json(['code' => 404, 'message' => 'POS not found']);
+            return response()->json(['response_code' => 404, 'response_message' => 'POS not found'], 404);
         }
-
+ 
         $bank = Bank::find($pos->bank_id);
         if (!$bank) {
-            return response()->json(['code' => 404, 'message' => 'Bank not found']);
+            return response()->json(['response_code' => 404, 'response_message' => 'Bank not found'], 404);
         }
-
+ 
         $currency = Currency::where('code', $data['currency_code'])->first();
         if (!$currency) {
-            return response()->json(['code' => 404, 'message' => 'Invalid currency code']);
+            return response()->json(['response_code' => 422, 'response_message' => 'Invalid currency code'], 422);
         }
-
+ 
+       
         $payload = [
             'username'          => $bank->user_name,
             'password'          => $bank->user_password,
@@ -65,109 +69,66 @@ class PaymentController extends Controller
             'card_cvv'          => $data['card_cvv'],
             'card_exp'          => $data['card_exp'],
             'amount'            => $data['amount'],
+            'invoice_id'        => $data['invoice_id'],
         ];
-
+ 
+       
         try {
-            $response = Http::asForm()->post($bank->api_url, $payload);
-            $bankResponse = $response->json();
-
-            if (isset($bankResponse['data']) && is_array($bankResponse['data'])) {
-                $bankResponse['data'] = array_merge(
-                    [
-                        'bank_order_id' => $bankResponse['data']['bank_order_id'] ?? null,
-                        'amount'        => $bankResponse['data']['amount'] ?? $data['amount'],
-                        'currency_code' => $currency->code
-                    ],
-                    array_diff_key($bankResponse['data'], ['bank_order_id'=>1,'amount'=>1])
-                );
-            } else {
-                $bankResponse['data'] = [
-                    'amount'        => $data['amount'],
-                    'currency_code' => $currency->code
-                ];
-            }
-
+            $bankResponse = Http::asForm()->post($bank->api_url, $payload);
+            $bankResult = $bankResponse->json();
         } catch (\Exception $e) {
-
-            // Build a failed bank response with currency_code
-            $bankResponse = [
-                'code'    => 500,
-                'message' => 'Bank API connection failed',
-                'data'    => [
-                    'amount'        => $data['amount'],
-                    'currency_code' => $currency->code
-                ]
-            ];
-
-            Transaction::create([
-                'invoice_id'        => $data['invoice_id'],
-                'order_id'          => Str::random(10),
-                'transaction_state' => 'Failed',
-                'gross'             => $data['amount'],
-                'net'               => 0,
-                'fee'               => 0,
-                'refunded_amount'   => 0,
-                'pos_id'            => $pos->id,
-                'currency_id'       => $currency->id,
-                'merchant_id'       => $merchant->id,
-            ]);
-
             return response()->json([
-                'code'    => 500,
-                'message' => 'Failed to connect to bank API.',
-                'data'    => [
-                    'bank_response' => $bankResponse,
-                    'invoice_id'    => $data['invoice_id'],
-                    'fee_details'   => [
-                        'commission_percentage' => $pos->commission_percentage ?? 0,
-                        'commission_fixed'      => $pos->commission_fixed ?? 0,
-                        'bank_fee'              => $pos->bank_fee ?? 0,
-                    ],
-                ],
-            ]);
+                'response_code' => 500,
+                'response_message' => 'Failed to connect to bank API',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $status = (
-            (isset($bankResponse['code']) && (int)$bankResponse['code'] === 100) ||
-            (isset($bankResponse['message']) && strtolower($bankResponse['message']) === 'success')
-        ) ? 'Completed' : 'Failed';
-
-        $commissionPercentage = $pos->commission_percentage ?? 0;
-        $commissionFixed      = $pos->commission_fixed ?? 0;
-        $bankFee              = $pos->bank_fee ?? 0;
-
+ 
+        // Step 6: Determine transaction state
+        $transactionState = 'Failed';
+        if (isset($bankResult['response_code']) && $bankResult['response_code'] == 100) {
+            $transactionState = 'Completed';
+        } elseif (isset($bankResult['response_code']) && $bankResult['response_code'] == 1) {
+            $transactionState = 'Pending';
+        } elseif (isset($bankResult['response_code']) && $bankResult['response_code'] == 4) {
+            $transactionState = 'Failed';
+        }
+ 
+        // Step 7: Calculate fee and net
+        $commissionPercentage = $pos->commission_percentage ?? 2.5;
+        $commissionFixed = $pos->commission_fixed ?? 0.5;
+        $bankFee = $pos->bank_fee ?? 0.2;
+ 
         $fee = ($data['amount'] * $commissionPercentage / 100) + $commissionFixed + $bankFee;
         $net = $data['amount'] - $fee;
-
-        $transaction = Transaction::create([
+ 
+        // Step 8: Record transaction
+        $transactionData = [
             'invoice_id'        => $data['invoice_id'],
-            'order_id'          => Str::random(10),
-            'transaction_state' => $status,
+            'order_id'          => $bankResult['order_id'] ?? 'DBOI' . time() . rand(100, 999),
             'gross'             => $data['amount'],
             'net'               => $net,
             'fee'               => $fee,
             'refunded_amount'   => 0,
+            'transaction_state' => $transactionState,
             'pos_id'            => $pos->id,
             'currency_id'       => $currency->id,
             'merchant_id'       => $merchant->id,
-        ]);
-
+        ];
+ 
+        Transaction::create($transactionData);
+ 
+        // Step 9: Return bank response
+        $responseCode = $bankResult['code'] ?? 500;
+        $responseMessage = $bankResult['message'] ?? 'Unknown error';
+        $bankData = $bankResult['data'] ?? [];
+ 
         return response()->json([
-            'response_code'    => 200,
-            'response_message' => 'Transaction recorded successfully.',
-            'data' => [
-                'bank_order_id'  => $bankResponse['data']['bank_order_id'] ?? null,
-                'amount'         => $bankResponse['data']['amount'] ?? $data['amount'],
-                'currency_code'  => $currency->code,
-                'payment_at'     => $bankResponse['data']['payment_at'] ?? now()->format('Y-m-d H:i:s'),
-                'fee_details'    => [
-                    'commission_percentage' => $pos->commission_percentage ?? 0,
-                    'commission_fixed'      => $pos->commission_fixed ?? 0,
-                    'bank_fee'              => $pos->bank_fee ?? 0,
-                ],
-            ],
-        ]);
-
+            'response_code' => $responseCode,
+            'response_message' => $responseMessage,
+            'data' => $bankData
+        ], 200);
+ 
     }
     public function refund(Request $request)
     {
@@ -182,69 +143,78 @@ class PaymentController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'code' => 422,
-                'message' => $validator->errors(),
+                'response_code' => 1,
+                'response_message' => 'Validation failed',
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        // 2️⃣ Fetch POS, Bank, Merchant, Transaction
-        $pos = Pos::first();
-        $bank = Bank::find($pos->bank_id);
-        $merchant = Merchant::find($data['merchant_id']);
+        // 2️⃣ Fetch transaction, POS, Bank, Currency
         $transaction = Transaction::where('order_id', $data['order_id'])
-            ->where('merchant_id', $merchant->id)
+            ->where('merchant_id', $data['merchant_id'])
             ->first();
 
         if (!$transaction) {
             return response()->json([
-                'code' => 404,
-                'message' => 'Transaction not found'
-            ], 404);
+                'response_code' => 2,
+                'response_message' => 'Transaction not found'
+            ], 422);
         }
 
-        $refundAmount = (int) $data['refund_amount'];
+        $pos = $transaction->pos;
+        $bank = $pos->bank;
+        $currency = $transaction->currency;
+
+        $amount = (int)$transaction->gross;
+        $refunded = (int)$transaction->refunded_amount;
+        $refundAmount = (int)$data['refund_amount'];
+
+        // 3️⃣ Validate refund rules
+        if ($refundAmount <= 0) {
+            return response()->json([
+                'response_code' => 3,
+                // 'response_message' => 'Refund amount must be greater than 0.'
+                'response_message' => $$refundAmount
+            ], 422);
+        }
+
+        if ($refundAmount > ($amount - $refunded)) {
+            return response()->json([
+                'response_code' => 4,
+                'response_message' => 'Refund amount cannot be greater than remaining transaction amount.' ,
+            ], 422);
+        }
+
+        // 4️⃣ Prepare bank payload
         $payload = [
             'username'      => $bank->user_name,
             'password'      => $bank->user_password,
-            'amount'        => (int) $transaction->gross, 
-            'refund_amount' => $refundAmount,           
-            'order_id'      => $data['order_id'],
+            'amount'        => $amount-$refunded,
+            'refund_amount' => $refundAmount,
+            'order_id'      => $transaction->order_id,
         ];
 
-        // 4️⃣ Call bank API
+        // 5️⃣ Call bank API
         try {
             $bank_refund_url = str_replace(".php", "-refund.php", $bank->api_url);
-            $response = Http::asForm()->post($bank_refund_url, $payload);
-            $bankResponse = $response->json();
-
-            if (!$bankResponse) {
-                return response()->json([
-                    'code' => 500,
-                    'message' => 'Bank API did not return a valid JSON response.',
-                    'data' => [
-                        'url' => $bank_refund_url,
-                        'payload' => $payload,
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                    ]
-                ], 500);
-            }
+            $bankResponse = Http::asForm()->post($bank_refund_url, $payload)->json();
         } catch (\Exception $e) {
             return response()->json([
-                'code' => 500,
-                'message' => 'Bank API connection failed.',
-                'data' => ['error' => $e->getMessage()]
+                'response_code' => 5,
+                'response_message' => 'Failed to connect to bank API',
+                'error' => $e->getMessage()
             ], 500);
         }
 
-        // 5️⃣ Update transaction & create refund record if bank says success
-        $success = (isset($bankResponse['code']) && (int)$bankResponse['code'] === 100) ||
-                (isset($bankResponse['message']) && strtolower($bankResponse['message']) === 'success');
+        // 6️⃣ Determine transaction state
+        $success = isset($bankResponse['code']) && (int)$bankResponse['code'] === 100;
 
+        // 7️⃣ Update transaction & create refund record if successful
         if ($success) {
             $transaction->refunded_amount += $refundAmount;
-            $transaction->transaction_state = ($transaction->refunded_amount >= $transaction->gross)
-                ? 'Refunded' : 'Partial Refunded';
+            $transaction->transaction_state = ($transaction->refunded_amount == $transaction->gross)
+                ? 'Refunded'
+                : 'Partial Refunded';
             $transaction->save();
 
             Refund::create([
@@ -255,29 +225,33 @@ class PaymentController extends Controller
             ]);
         }
 
-        // 6️⃣ Prepare payment-style response
-        $currency = $merchant->currency ?? (object)['code' => 'BDT']; // default currency
+        // Prepare payment-style response
+        $commissionPercentage = $pos->commission_percentage ?? 2.5;
+        $commissionFixed = $pos->commission_fixed ?? 0.5;
+        $bankFee = $pos->bank_fee ?? 0.2;
+
+        $fee = (int)($refundAmount * $commissionPercentage / 100) + $commissionFixed + $bankFee;
+        $net = $refundAmount - $fee;
+
         $paymentResponse = [
-            'response_code'    => $success ? 200 : 500,
-            'response_message' => $success ? 'Transaction recorded successfully.' : 'Refund failed.',
+            'response_code'    => $bankResponse['response_code'] ?? 500,
+            'response_message' => $bankResponse['response_message'] ?? ($success ? 'Refund successful' : 'Refund failed'),
             'data' => [
-                'bank_order_id'  => $bankResponse['data']['bank_order_id'] ?? null,
-                'amount'         => $bankResponse['data']['amount'] ?? $refundAmount,
-                'currency_code'  => $currency->code,
-                'payment_at'     => $bankResponse['data']['payment_at'] ?? now()->format('Y-m-d H:i:s'),
-                'fee_details'    => [
-                    'commission_percentage' => $pos->commission_percentage ?? 0,
-                    'commission_fixed'      => $pos->commission_fixed ?? 0,
-                    'bank_fee'              => $pos->bank_fee ?? 0,
+                'bank_order_id' => $bankResponse['data']['bank_order_id'] ?? null,
+                'amount'        => $refundAmount,
+                'currency_code' => $currency->code ?? 'BDT',
+                'payment_at'    => $bankResponse['data']['payment_at'] ?? now()->format('Y-m-d H:i:s'),
+                'fee_details'   => [
+                    'commission_percentage' => $commissionPercentage,
+                    'commission_fixed'      => $commissionFixed,
+                    'bank_fee'              => $bankFee,
                 ],
+                'net_amount'    => $net,
             ],
         ];
 
-        // 7️⃣ Return both responses
-        return response()->json([
-            'bank_response'    => $bankResponse,
-            'payment_response' => $paymentResponse,
-        ]);
+        return response()->json($paymentResponse, 200);
     }
+
 
 }

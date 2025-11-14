@@ -18,4 +18,19 @@ class Transaction extends Model
         'currency_id',
         'merchant_id',
     ];
+
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class);
+    }
+
+    public function pos()
+    {
+        return $this->belongsTo(Pos::class);
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
 }

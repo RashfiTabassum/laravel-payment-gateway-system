@@ -6,18 +6,14 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-/**
- * @param \Illuminate\Http\Request $request
- * @param \App\Models\Admin $admin
- */
-
-
+use Exception;
 
 class AdminController extends Controller
 {
     public function index()
     {
         $admins = Admin::latest('id')->paginate(10);
+
         return view('admin.admins.index', compact('admins'));
     }
 
@@ -34,15 +30,31 @@ class AdminController extends Controller
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        Admin::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'password'  => Hash::make($data['password']),
-            'user_type' => Admin::USER_TYPE_ADMIN,
-            'status'    => Admin::STATUS_ACTIVE,
-        ]);
+        try {
+            Admin::create([
+                'name'      => $data['name'],
+                'email'     => $data['email'],
+                'password'  => Hash::make($data['password']),
+                'user_type' => Admin::USER_TYPE_ADMIN,
+                'status'    => Admin::STATUS_ACTIVE,
+            ]);
 
-        return redirect()->route('admins.index')->with('ok', 'Admin created successfully!');
+            return redirect()
+                ->route('admins.index')
+                ->with('message', 'Admin created successfully!')
+                ->with('alert-type', 'success');
+
+        } catch (Exception $e) {
+            return back()
+                ->withInput()
+                ->with('message', $e->getMessage())
+                ->with('alert-type', 'danger');
+        }
+    }
+
+    public function show(Admin $admin)
+    {
+        return view('admin.admins.show', compact('admin'));
     }
 
     public function edit(Admin $admin)
@@ -59,39 +71,60 @@ class AdminController extends Controller
                 Rule::unique('users', 'email')->ignore($admin->id),
             ],
             'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'status'   => ['nullable'],
         ]);
 
-        $admin->fill([
-            'name'  => $data['name'],
-            'email' => $data['email'],
-        ]);
+        try {
+            $admin->name  = $data['name'];
+            $admin->email = $data['email'];
 
-        if (!empty($data['password'])) {
-            $admin->password = Hash::make($data['password']);
+            if (!empty($data['password'])) {
+                $admin->password = Hash::make($data['password']);
+            }
+
+            $admin->user_type = Admin::USER_TYPE_ADMIN;
+            $admin->status = $request->boolean('status');
+
+            $admin->save();
+
+            return redirect()
+                ->route('admins.index')
+                ->with('message', 'Admin updated successfully!')
+                ->with('alert-type', 'success');
+
+        } catch (Exception $e) {
+            return back()
+                ->withInput()
+                ->with('message', $e->getMessage())
+                ->with('alert-type', 'danger');
         }
-
-        // enforce role & (optionally) keep active
-        $admin->user_type = Admin::USER_TYPE_ADMIN;
-        // $admin->status    = Admin::STATUS_ACTIVE; // uncomment if you want to force active
-
-        $admin->save();
-
-        return redirect()->route('admins.index')->with('ok', 'Admin updated successfully!');
     }
 
     public function destroy(Admin $admin)
     {
-        // If you haven't configured an 'admin' guard, use auth() instead of auth('admin')
-        if (auth()->id() === $admin->id) {
-            return back()->with('err', 'You cannot delete your own account.');
+        try {
+            if (auth()->id() === $admin->id) {
+                return back()
+                    ->with('message', 'You cannot delete your own account.')
+                    ->with('alert-type', 'danger');
+            }
+
+            if (Admin::count() <= 1) {
+                return back()
+                    ->with('message', 'At least one admin must remain.')
+                    ->with('alert-type', 'danger');
+            }
+
+            $admin->delete();
+
+            return back()
+                ->with('message', 'Admin deleted successfully.')
+                ->with('alert-type', 'success');
+
+        } catch (Exception $e) {
+            return back()
+                ->with('message', $e->getMessage())
+                ->with('alert-type', 'danger');
         }
-
-        if (Admin::count() <= 1) {
-            return back()->with('err', 'At least one admin must remain.');
-        }
-
-        $admin->delete();
-
-        return back()->with('ok', 'Admin deleted successfully.');
     }
 }
