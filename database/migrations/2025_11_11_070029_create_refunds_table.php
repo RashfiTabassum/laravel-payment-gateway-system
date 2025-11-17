@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('invoice_id');
             $table->enum('transaction_state', ['Completed', 'Pending', 'Refunded', 'Partial Refunded', 'Failed']);
             $table->decimal('amount', 15, 2);
-             $table->dateTime('created_at')->nullable();
+            $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
         });
     }
